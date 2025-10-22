@@ -1,8 +1,9 @@
-// countdown.js - Countdown Timer - OPTIMIZED
+// countdown.js - Countdown Timer - OPTIMIZED & FIXED
 class WeddingCountdown {
   constructor() {
     this.weddingDate = new Date('2026-06-27T10:00:00+07:00');
     this.elements = {};
+    this.interval = null;
     this.init();
   }
 
@@ -18,6 +19,17 @@ class WeddingCountdown {
   }
 
   createCountdownSection() {
+    // Cek apakah section sudah ada
+    if (document.getElementById('countdown')) {
+      this.elements = {
+        days: document.getElementById('days'),
+        hours: document.getElementById('hours'),
+        minutes: document.getElementById('minutes'),
+        seconds: document.getElementById('seconds')
+      };
+      return;
+    }
+
     const countdownSection = document.createElement('section');
     countdownSection.id = 'countdown';
     countdownSection.className = 'countdown-section';
@@ -56,7 +68,7 @@ class WeddingCountdown {
     if (header && main) {
       header.parentNode.insertBefore(countdownSection, header.nextSibling);
     } else {
-      document.body.insertBefore(countdownSection, document.querySelector('main'));
+      document.body.insertBefore(countdownSection, document.body.firstChild);
     }
 
     // Store element references
@@ -71,11 +83,14 @@ class WeddingCountdown {
   }
 
   addStyles() {
+    if (document.querySelector('style[data-countdown]')) return;
+
     const style = document.createElement('style');
+    style.setAttribute('data-countdown', 'true');
     style.textContent = `
       .countdown-section {
         background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(233,241,234,0.8) 100%);
-        padding: 20px 20px;
+        padding: 60px 20px;
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -100,7 +115,7 @@ class WeddingCountdown {
       }
 
       .countdown-item {
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(138, 168, 143, 0.2);
         border-radius: 16px;
@@ -118,7 +133,7 @@ class WeddingCountdown {
         top: 0;
         left: 0;
         right: 0;
-        height: 3px;
+        height: 4px;
         background: linear-gradient(90deg, var(--sage), var(--sage-dark));
       }
 
@@ -143,7 +158,7 @@ class WeddingCountdown {
         color: var(--muted);
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
       }
 
       .countdown-message {
@@ -164,7 +179,6 @@ class WeddingCountdown {
         line-height: 1.6;
       }
 
-      /* Animation for number changes */
       @keyframes countdownPop {
         0% { transform: scale(1); }
         50% { transform: scale(1.1); }
@@ -175,15 +189,19 @@ class WeddingCountdown {
         animation: countdownPop 0.3s ease;
       }
 
-      /* Responsive */
       @media (max-width: 768px) {
+        .countdown-section {
+          padding: 40px 15px;
+        }
+
         .countdown-container {
-          gap: 15px;
+          gap: 12px;
+          margin: 30px 0;
         }
 
         .countdown-item {
           min-width: 80px;
-          padding: 20px 12px;
+          padding: 20px 10px;
         }
 
         .countdown-number {
@@ -197,7 +215,7 @@ class WeddingCountdown {
 
       @media (max-width: 480px) {
         .countdown-container {
-          gap: 10px;
+          gap: 8px;
         }
 
         .countdown-item {
@@ -206,11 +224,14 @@ class WeddingCountdown {
         }
 
         .countdown-number {
-          font-size: 1.8rem;
+          font-size: 1.7rem;
+        }
+
+        .countdown-label {
+          font-size: 0.75rem;
         }
       }
 
-      /* Wedding date passed state */
       .wedding-passed {
         background: linear-gradient(135deg, rgba(233,241,234,0.9) 0%, rgba(207,227,208,0.8) 100%);
       }
@@ -220,10 +241,7 @@ class WeddingCountdown {
       }
     `;
 
-    if (!document.querySelector('style[data-countdown]')) {
-      style.setAttribute('data-countdown', 'true');
-      document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
   }
 
   startCountdown() {
@@ -274,7 +292,10 @@ class WeddingCountdown {
   }
 
   handleWeddingDay() {
-    clearInterval(this.interval);
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
     
     const countdownSection = document.getElementById('countdown');
     if (countdownSection) {
@@ -287,7 +308,7 @@ class WeddingCountdown {
         container.innerHTML = `
           <div style="text-align: center; padding: 40px 20px;">
             <div style="font-size: 3rem; margin-bottom: 20px;">🎉</div>
-            <h3 style="color: var(--sage-dark); font-family: 'Playfair Display', serif; margin-bottom: 15px;">
+            <h3 style="color: var(--sage-dark); font-family: 'Playfair Display', serif; margin-bottom: 15px; font-size: 1.5rem;">
               Hari Bahagia Telah Tiba!
             </h3>
             <p style="color: var(--muted); font-size: 1.1rem; line-height: 1.6;">
@@ -300,7 +321,7 @@ class WeddingCountdown {
 
       if (message) {
         message.innerHTML = `
-          <p style="text-align: center; color: var(--sage-dark); font-weight: 600;">
+          <p style="text-align: center; color: var(--sage-dark); font-weight: 600; font-size: 1rem;">
             "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan hidup dari jenismu sendiri, 
             supaya kamu cenderung dan merasa tenteram kepadanya." (QS. Ar-Rum: 21)
           </p>
@@ -311,15 +332,15 @@ class WeddingCountdown {
 
   setupIntersectionObserver() {
     const countdownSection = document.getElementById('countdown');
-    if (!countdownSection) return;
+    if (!countdownSection || !('IntersectionObserver' in window)) return;
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          countdownSection.style.animationPlayState = 'running';
+          entry.target.style.animationPlayState = 'running';
         }
       });
-    }, { threshold: 0.3 });
+    }, { threshold: 0.1 });
 
     observer.observe(countdownSection);
   }
@@ -342,18 +363,16 @@ class WeddingCountdown {
   destroy() {
     if (this.interval) {
       clearInterval(this.interval);
+      this.interval = null;
     }
   }
 }
 
 // Initialize countdown when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    new WeddingCountdown();
+  });
+} else {
   new WeddingCountdown();
-});
-
-// Handle page visibility changes
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) {
-    // Page became visible, you could refresh countdown here if needed
-  }
-});
+}
