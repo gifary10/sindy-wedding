@@ -1,9 +1,11 @@
-// wishes.js - Wishes & Messages System - OPTIMIZED
-class WishesSystem {
+// wishes.js - Wishes & Messages - OPTIMIZED & FIXED
+class WeddingWishes {
   constructor() {
     this.wishes = [];
     this.currentPage = 1;
-    this.itemsPerPage = 5;
+    this.wishesPerPage = 5;
+    this.isSubmitting = false;
+    this.observer = null;
     this.init();
   }
 
@@ -12,12 +14,16 @@ class WishesSystem {
       this.createWishesSection();
       this.setupEventListeners();
       this.loadWishes();
+      this.setupIntersectionObserver();
     } catch (error) {
-      console.error('Error initializing wishes system:', error);
+      console.error('Error initializing wishes:', error);
+      this.showErrorState();
     }
   }
 
   createWishesSection() {
+    if (document.getElementById('wishes')) return;
+
     const section = document.createElement('section');
     section.id = 'wishes';
     section.className = 'wishes-section';
@@ -26,279 +32,598 @@ class WishesSystem {
     section.innerHTML = `
       <div class="container">
         <h2 class="title">Ucapan & Doa</h2>
-        <p class="section-subtitle">Berikan ucapan dan doa restu untuk pernikahan kami</p>
+        <p class="section-subtitle">Kirimkan ucapan dan doa restu untuk pernikahan kami</p>
         
-        <div class="wishes-container">
-          <!-- Wishes Form -->
-          <div class="wishes-form-container" data-aos="fade-right">
-            <form class="wishes-form" id="wishesForm">
-              <div class="form-header">
-                <h3>Tulis Ucapan</h3>
-                <p>Bagikan kebahagiaan dan doa Anda untuk kami</p>
-              </div>
-
+        <div class="wish-form-container" data-aos="fade-up">
+          <form class="wish-form" id="wishForm" novalidate>
+            <div class="form-row">
               <div class="form-group">
-                <label for="wisherName">Nama Anda *</label>
-                <input type="text" id="wisherName" name="name" required 
-                       placeholder="Masukkan nama Anda">
-                <div class="error-message" id="nameError"></div>
+                <label for="guestName">Nama Lengkap *</label>
+                <input type="text" id="guestName" name="name" required 
+                       placeholder="Masukkan nama lengkap Anda" maxlength="50">
+                <div class="error-message" id="nameError" aria-live="polite"></div>
               </div>
-
               <div class="form-group">
-                <label for="wisherMessage">Ucapan & Doa *</label>
-                <textarea id="wisherMessage" name="message" rows="4" required
-                          placeholder="Tuliskan ucapan dan doa untuk mempelai..."></textarea>
-                <div class="error-message" id="messageError"></div>
-                <div class="char-count">
-                  <span id="charCount">0</span>/500 karakter
-                </div>
+                <label for="guestRelation">Hubungan dengan mempelai *</label>
+                <select id="guestRelation" name="relation" required>
+                  <option value="">Pilih hubungan</option>
+                  <option value="family">Keluarga</option>
+                  <option value="friend">Teman</option>
+                  <option value="colleague">Rekan Kerja</option>
+                  <option value="relative">Kerabat</option>
+                  <option value="other">Lainnya</option>
+                </select>
+                <div class="error-message" id="relationError" aria-live="polite"></div>
               </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="guestMessage">Pesan & Doa *</label>
+              <textarea id="guestMessage" name="message" required 
+                        placeholder="Tuliskan pesan dan doa terbaik Anda untuk kami..." 
+                        rows="4" maxlength="500"></textarea>
+              <div class="textarea-info">
+                <span class="char-count">0/500 karakter</span>
+              </div>
+              <div class="error-message" id="messageError" aria-live="polite"></div>
+            </div>
 
-              <button type="submit" class="btn-submit-wish">
-                <i class="fas fa-paper-plane"></i>
+            <div class="form-actions">
+              <button type="submit" class="btn-submit" id="submitWish" disabled>
+                <i class="fas fa-paper-plane" aria-hidden="true"></i>
                 Kirim Ucapan
               </button>
-            </form>
+              <button type="button" class="btn-preview" id="previewWish">
+                <i class="fas fa-eye" aria-hidden="true"></i>
+                Preview
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="wishes-container" data-aos="fade-up">
+          <div class="wishes-header">
+            <h3 class="wishes-title">Ucapan dari Tamu Undangan</h3>
+            <div class="wishes-stats">
+              <span id="wishesCount">0 Ucapan</span>
+            </div>
+          </div>
+          
+          <div class="wishes-list" id="wishesList" aria-live="polite">
+            <!-- Wishes will be loaded here -->
           </div>
 
-          <!-- Wishes List -->
-          <div class="wishes-list-container" data-aos="fade-left">
-            <div class="wishes-header">
-              <h3>Ucapan dari Tamu</h3>
-              <div class="wishes-stats">
-                <span id="totalWishes">0</span> Ucapan
+          <div class="wishes-load-more" id="wishesLoadMore">
+            <button class="btn-load-more" id="loadMoreWishes" aria-label="Muat lebih banyak ucapan">
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+              Muat Lebih Banyak
+            </button>
+          </div>
+
+          <div class="wishes-empty" id="wishesEmpty">
+            <div class="empty-icon">
+              <i class="fas fa-heart" aria-hidden="true"></i>
+            </div>
+            <h4>Belum Ada Ucapan</h4>
+            <p>Jadilah yang pertama mengirimkan ucapan untuk kami!</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal" id="previewModal" role="dialog" aria-labelledby="previewModalTitle" aria-hidden="true">
+        <div class="modal-content">
+          <button class="modal-close" id="closePreview" aria-label="Tutup preview">&times;</button>
+          <h2 class="modal-title" id="previewModalTitle">Preview Ucapan Anda</h2>
+          <div class="preview-content">
+            <div class="preview-wish">
+              <div class="wish-header">
+                <div class="guest-avatar" aria-hidden="true">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="guest-info">
+                  <h4 id="previewName">Nama Tamu</h4>
+                  <span class="wish-relation" id="previewRelation">Hubungan</span>
+                </div>
+                <div class="wish-time">Sekarang</div>
+              </div>
+              <div class="wish-message">
+                <p id="previewMessage">Pesan Anda akan muncul di sini...</p>
               </div>
             </div>
-
-            <div class="wishes-list" id="wishesList">
-              <div class="loading-wishes">
-                <i class="fas fa-spinner fa-spin"></i>
-                <p>Memuat ucapan...</p>
-              </div>
-            </div>
-
-            <!-- Pagination -->
-            <div class="wishes-pagination" id="wishesPagination">
-              <button class="btn-prev" disabled>
-                <i class="fas fa-chevron-left"></i>
-                Sebelumnya
-              </button>
-              <span class="page-info">Halaman 1</span>
-              <button class="btn-next">
-                Selanjutnya
-                <i class="fas fa-chevron-right"></i>
-              </button>
-            </div>
+          </div>
+          <div class="preview-actions">
+            <button class="btn-secondary" id="editWish">
+              <i class="fas fa-edit" aria-hidden="true"></i>
+              Edit
+            </button>
+            <button class="btn-primary" id="confirmWish">
+              <i class="fas fa-check" aria-hidden="true"></i>
+              Konfirmasi Kirim
+            </button>
           </div>
         </div>
       </div>
     `;
 
-    document.getElementById('content').appendChild(section);
+    const content = document.getElementById('content');
+    if (content) {
+      content.appendChild(section);
+    } else {
+      console.error('Content element not found');
+      return;
+    }
+
     this.addStyles();
   }
 
   setupEventListeners() {
-    const form = document.getElementById('wishesForm');
+    // Form event delegation
+    const form = document.getElementById('wishForm');
     if (form) {
+      form.addEventListener('input', () => this.validateForm());
       form.addEventListener('submit', (e) => this.handleSubmit(e));
     }
 
-    // Character count for message
-    const messageInput = document.getElementById('wisherMessage');
-    if (messageInput) {
-      messageInput.addEventListener('input', () => this.updateCharCount());
+    // Preview button
+    const previewBtn = document.getElementById('previewWish');
+    if (previewBtn) {
+      previewBtn.addEventListener('click', () => this.previewWish());
     }
 
-    // Pagination
-    const prevBtn = document.querySelector('.btn-prev');
-    const nextBtn = document.querySelector('.btn-next');
-    
-    if (prevBtn) {
-      prevBtn.addEventListener('click', () => this.previousPage());
-    }
-    if (nextBtn) {
-      nextBtn.addEventListener('click', () => this.nextPage());
+    // Load more button
+    const loadMoreBtn = document.getElementById('loadMoreWishes');
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', () => this.loadMoreWishes());
     }
 
-    // Real-time validation
-    this.setupFormValidation();
+    // Character count for message textarea
+    const messageTextarea = document.getElementById('guestMessage');
+    if (messageTextarea) {
+      messageTextarea.addEventListener('input', (e) => this.updateCharCount(e.target));
+    }
+
+    // Preview modal events
+    this.setupPreviewModalEvents();
+
+    // Like buttons delegation
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.wish-like-btn')) {
+        const button = e.target.closest('.wish-like-btn');
+        const wishId = parseInt(button.dataset.wishId);
+        this.toggleLike(wishId);
+      }
+    });
   }
 
-  setupFormValidation() {
-    const nameInput = document.getElementById('wisherName');
-    const messageInput = document.getElementById('wisherMessage');
+  setupPreviewModalEvents() {
+    const previewModal = document.getElementById('previewModal');
+    const closePreview = document.getElementById('closePreview');
+    const editWish = document.getElementById('editWish');
+    const confirmWish = document.getElementById('confirmWish');
 
-    if (nameInput) {
-      nameInput.addEventListener('blur', () => this.validateField('name', nameInput.value));
-      nameInput.addEventListener('input', () => this.clearError('name'));
+    if (closePreview) {
+      closePreview.addEventListener('click', () => {
+        this.closePreviewModal();
+      });
     }
 
-    if (messageInput) {
-      messageInput.addEventListener('blur', () => this.validateField('message', messageInput.value));
-      messageInput.addEventListener('input', () => this.clearError('message'));
+    if (editWish) {
+      editWish.addEventListener('click', () => {
+        this.closePreviewModal();
+      });
+    }
+
+    if (confirmWish) {
+      confirmWish.addEventListener('click', () => {
+        this.submitWish();
+        this.closePreviewModal();
+      });
+    }
+
+    if (previewModal) {
+      previewModal.addEventListener('click', (e) => {
+        if (e.target === previewModal) {
+          this.closePreviewModal();
+        }
+      });
+
+      // Keyboard support
+      previewModal.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          this.closePreviewModal();
+        }
+      });
     }
   }
 
-  validateField(field, value) {
-    const errorElement = document.getElementById(`${field}Error`);
-    
-    switch(field) {
-      case 'name':
-        if (!value.trim()) {
-          this.showError('name', 'Nama wajib diisi');
-          return false;
-        }
-        if (value.trim().length < 2) {
-          this.showError('name', 'Nama minimal 2 karakter');
-          return false;
-        }
-        break;
+  closePreviewModal() {
+    const previewModal = document.getElementById('previewModal');
+    if (previewModal) {
+      previewModal.setAttribute('aria-hidden', 'true');
+      previewModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  openPreviewModal() {
+    const previewModal = document.getElementById('previewModal');
+    if (previewModal) {
+      previewModal.setAttribute('aria-hidden', 'false');
+      previewModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
       
-      case 'message':
-        if (!value.trim()) {
-          this.showError('message', 'Ucapan wajib diisi');
-          return false;
-        }
-        if (value.trim().length < 5) {
-          this.showError('message', 'Ucapan minimal 5 karakter');
-          return false;
-        }
-        if (value.length > 500) {
-          this.showError('message', 'Ucapan maksimal 500 karakter');
-          return false;
-        }
-        break;
+      // Focus trap
+      const focusableElements = previewModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      }
     }
-    
-    this.clearError(field);
-    return true;
   }
 
-  showError(field, message) {
-    const errorElement = document.getElementById(`${field}Error`);
+  validateForm() {
+    const form = document.getElementById('wishForm');
+    const submitBtn = document.getElementById('submitWish');
+    if (!form || !submitBtn) return false;
+
+    const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+    let isValid = true;
+
+    inputs.forEach(input => {
+      const errorElement = document.getElementById(`${input.name}Error`);
+      
+      if (!input.value.trim()) {
+        this.showError(input, errorElement, 'Field ini wajib diisi');
+        isValid = false;
+      } else if (input.name === 'name' && input.value.trim().length < 2) {
+        this.showError(input, errorElement, 'Nama minimal 2 karakter');
+        isValid = false;
+      } else if (input.name === 'message' && input.value.trim().length < 10) {
+        this.showError(input, errorElement, 'Pesan minimal 10 karakter');
+        isValid = false;
+      } else {
+        this.clearError(input, errorElement);
+      }
+    });
+
+    submitBtn.disabled = !isValid;
+    return isValid;
+  }
+
+  showError(input, errorElement, message) {
+    input.classList.add('error');
     if (errorElement) {
       errorElement.textContent = message;
       errorElement.style.display = 'block';
     }
   }
 
-  clearError(field) {
-    const errorElement = document.getElementById(`${field}Error`);
+  clearError(input, errorElement) {
+    input.classList.remove('error');
     if (errorElement) {
       errorElement.textContent = '';
       errorElement.style.display = 'none';
     }
   }
 
-  updateCharCount() {
-    const messageInput = document.getElementById('wisherMessage');
-    const charCount = document.getElementById('charCount');
-    
-    if (messageInput && charCount) {
-      const count = messageInput.value.length;
-      charCount.textContent = count;
+  updateCharCount(textarea) {
+    const charCount = textarea.parentElement.querySelector('.char-count');
+    if (charCount) {
+      const count = textarea.value.length;
+      charCount.textContent = `${count}/500 karakter`;
       
       if (count > 450) {
-        charCount.style.color = '#e74c3c';
+        charCount.style.color = 'var(--error)';
       } else if (count > 400) {
-        charCount.style.color = '#f39c12';
+        charCount.style.color = 'var(--warning)';
       } else {
         charCount.style.color = 'var(--muted)';
       }
     }
   }
 
-  async handleSubmit(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const data = {
-      name: formData.get('name').trim(),
-      message: formData.get('message').trim(),
-      timestamp: new Date().toISOString(),
-      id: this.generateId()
-    };
-
-    // Validate all fields
-    if (!this.validateAllFields(data)) {
+  previewWish() {
+    if (!this.validateForm()) {
+      this.showNotification('Harap lengkapi form dengan benar', 'error');
       return;
     }
 
-    // Show loading state
-    const submitBtn = e.target.querySelector('.btn-submit-wish');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
-    submitBtn.disabled = true;
+    const formData = this.getFormData();
 
-    try {
-      // Simulate API call
-      await this.submitWish(data);
-      
-      // Add to local storage
-      this.wishes.unshift(data); // Add to beginning for newest first
-      this.saveWishes();
-      
-      // Show success notification
-      this.showSuccessNotification(data.name);
-      
-      // Reset form
-      e.target.reset();
-      this.updateCharCount();
-      
-      // Refresh wishes list
-      this.currentPage = 1;
-      this.renderWishes();
-      
-    } catch (error) {
-      this.showNotification('Terjadi kesalahan. Silakan coba lagi.', 'error');
-    } finally {
-      submitBtn.innerHTML = originalText;
-      submitBtn.disabled = false;
+    // Update preview content
+    document.getElementById('previewName').textContent = formData.name;
+    document.getElementById('previewRelation').textContent = this.getRelationLabel(formData.relation);
+    document.getElementById('previewMessage').textContent = formData.message;
+
+    this.openPreviewModal();
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+    
+    if (!this.validateForm()) {
+      this.showNotification('Harap lengkapi form dengan benar', 'error');
+      return;
+    }
+
+    this.previewWish();
+  }
+
+  submitWish() {
+    if (this.isSubmitting) return;
+
+    const formData = this.getFormData();
+    this.isSubmitting = true;
+
+    const submitBtn = document.getElementById('submitWish');
+    if (submitBtn) {
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Mengirim...';
+      submitBtn.disabled = true;
+    }
+
+    // Simulate API call with better error handling
+    setTimeout(() => {
+      try {
+        this.addWish({
+          id: Date.now(),
+          name: formData.name,
+          relation: formData.relation,
+          message: formData.message,
+          timestamp: new Date().toISOString(),
+          likes: 0
+        });
+
+        this.resetForm();
+        this.showNotification('Ucapan berhasil dikirim! Terima kasih atas doa restunya.', 'success');
+      } catch (error) {
+        console.error('Error submitting wish:', error);
+        this.showNotification('Gagal mengirim ucapan. Silakan coba lagi.', 'error');
+      } finally {
+        this.isSubmitting = false;
+        if (submitBtn) {
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane" aria-hidden="true"></i> Kirim Ucapan';
+          submitBtn.disabled = true;
+        }
+      }
+    }, 1500);
+  }
+
+  getFormData() {
+    const form = document.getElementById('wishForm');
+    return {
+      name: form.guestName.value.trim(),
+      relation: form.guestRelation.value,
+      message: form.guestMessage.value.trim()
+    };
+  }
+
+  resetForm() {
+    const form = document.getElementById('wishForm');
+    if (form) {
+      form.reset();
+      this.updateCharCount(form.guestMessage);
+      this.validateForm();
     }
   }
 
-  validateAllFields(data) {
-    let isValid = true;
-
-    if (!this.validateField('name', data.name)) isValid = false;
-    if (!this.validateField('message', data.message)) isValid = false;
-
-    return isValid;
+  addWish(wish) {
+    this.wishes.unshift(wish); // Add to beginning
+    this.saveWishes();
+    this.displayWishes();
   }
 
-  async submitWish(data) {
-    // Simulate API call delay
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // In a real app, you would send data to your backend here
-        console.log('Wish Data:', data);
-        resolve({ success: true });
-      }, 1000);
+  loadWishes() {
+    try {
+      const savedWishes = localStorage.getItem('wedding-wishes');
+      if (savedWishes) {
+        this.wishes = JSON.parse(savedWishes);
+      } else {
+        // Load sample wishes
+        this.wishes = this.getSampleWishes();
+        this.saveWishes();
+      }
+      
+      this.displayWishes();
+    } catch (error) {
+      console.error('Error loading wishes:', error);
+      this.wishes = this.getSampleWishes();
+      this.displayWishes();
+    }
+  }
+
+  getSampleWishes() {
+    return [
+      {
+        id: 1,
+        name: 'Keluarga Besar',
+        relation: 'family',
+        message: 'Selamat menempuh hidup baru. Semoga menjadi keluarga yang sakinah, mawaddah, warahmah. Bahagia selalu!',
+        timestamp: new Date('2024-01-15').toISOString(),
+        likes: 5
+      },
+      {
+        id: 2,
+        name: 'Sahabat Masa Kecil',
+        relation: 'friend',
+        message: 'Akhirnya! Dari kecil sampai mau nikah, seneng banget lihat perjalanan kalian. Semoga langgeng sampai tua!',
+        timestamp: new Date('2024-01-14').toISOString(),
+        likes: 3
+      }
+    ];
+  }
+
+  saveWishes() {
+    try {
+      localStorage.setItem('wedding-wishes', JSON.stringify(this.wishes));
+    } catch (error) {
+      console.error('Error saving wishes:', error);
+    }
+  }
+
+  displayWishes() {
+    const wishesList = document.getElementById('wishesList');
+    const emptyState = document.getElementById('wishesEmpty');
+    const loadMoreContainer = document.getElementById('wishesLoadMore');
+    const wishesCount = document.getElementById('wishesCount');
+
+    if (!wishesList) return;
+
+    // Update count
+    if (wishesCount) {
+      wishesCount.textContent = `${this.wishes.length} Ucapan`;
+    }
+
+    // Show/hide empty state
+    if (emptyState) {
+      emptyState.style.display = this.wishes.length === 0 ? 'block' : 'none';
+    }
+
+    // Show/hide load more
+    if (loadMoreContainer) {
+      const hasMore = this.wishes.length > this.currentPage * this.wishesPerPage;
+      loadMoreContainer.style.display = hasMore ? 'block' : 'none';
+    }
+
+    // Calculate pagination
+    const startIndex = 0;
+    const endIndex = this.currentPage * this.wishesPerPage;
+    const wishesToShow = this.wishes.slice(startIndex, endIndex);
+
+    wishesList.innerHTML = wishesToShow.map(wish => this.createWishElement(wish)).join('');
+  }
+
+  createWishElement(wish) {
+    const timeAgo = this.getTimeAgo(wish.timestamp);
+    const relationLabel = this.getRelationLabel(wish.relation);
+
+    return `
+      <div class="wish-item" data-wish-id="${wish.id}">
+        <div class="wish-header">
+          <div class="guest-avatar" aria-hidden="true">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="guest-info">
+            <h4 class="guest-name">${this.escapeHtml(wish.name)}</h4>
+            <span class="wish-relation">${relationLabel}</span>
+          </div>
+          <div class="wish-time">${timeAgo}</div>
+        </div>
+        <div class="wish-message">
+          <p>${this.escapeHtml(wish.message)}</p>
+        </div>
+        <div class="wish-actions">
+          <button class="wish-like-btn ${wish.likes > 0 ? 'liked' : ''}" 
+                  data-wish-id="${wish.id}"
+                  aria-label="${wish.likes > 0 ? 'Hapus suka' : 'Suka'} ucapan ini">
+            <i class="fas fa-heart" aria-hidden="true"></i>
+            <span class="like-count">${wish.likes}</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  getRelationLabel(relation) {
+    const labels = {
+      'family': 'Keluarga',
+      'friend': 'Teman',
+      'colleague': 'Rekan Kerja',
+      'relative': 'Kerabat',
+      'other': 'Tamu Undangan'
+    };
+    return labels[relation] || relation;
+  }
+
+  getTimeAgo(timestamp) {
+    const now = new Date();
+    const time = new Date(timestamp);
+    const diffInSeconds = Math.floor((now - time) / 1000);
+
+    if (diffInSeconds < 60) return 'Baru saja';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} menit lalu`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} jam lalu`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} hari lalu`;
+    
+    return time.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
     });
   }
 
-  showSuccessNotification(name) {
-    this.showNotification(`Terima kasih ${name}! Ucapan Anda telah terkirim.`, 'success');
+  toggleLike(wishId) {
+    const wish = this.wishes.find(w => w.id === wishId);
+    if (!wish) return;
+
+    // Toggle like (in real app, this would be user-specific)
+    wish.likes += wish.likes > 0 ? -1 : 1;
+    this.saveWishes();
+    
+    // Update UI
+    const likeBtn = document.querySelector(`.wish-like-btn[data-wish-id="${wishId}"]`);
+    const likeCount = likeBtn?.querySelector('.like-count');
+    
+    if (likeBtn && likeCount) {
+      likeBtn.classList.toggle('liked', wish.likes > 0);
+      likeCount.textContent = wish.likes;
+      likeBtn.setAttribute('aria-label', wish.likes > 0 ? 'Hapus suka' : 'Suka ucapan ini');
+      
+      // Add animation
+      likeBtn.style.transform = 'scale(1.1)';
+      setTimeout(() => {
+        likeBtn.style.transform = 'scale(1)';
+      }, 200);
+    }
+  }
+
+  loadMoreWishes() {
+    this.currentPage++;
+    this.displayWishes();
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  setupIntersectionObserver() {
+    if (!('IntersectionObserver' in window)) return;
+
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    setTimeout(() => {
+      const wishItems = document.querySelectorAll('.wish-item');
+      wishItems.forEach(item => this.observer.observe(item));
+    }, 100);
   }
 
   showNotification(message, type = 'info') {
-    // Create notification element
+    if (window.showNotification) {
+      window.showNotification(message, type);
+      return;
+    }
+
+    // Fallback notification
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
+    notification.setAttribute('role', 'alert');
+    notification.setAttribute('aria-live', 'polite');
     notification.innerHTML = `
       <div class="notification-content">
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}" aria-hidden="true"></i>
         <span>${message}</span>
       </div>
     `;
 
     document.body.appendChild(notification);
 
-    // Show notification
     setTimeout(() => notification.classList.add('show'), 100);
-
-    // Auto remove after 3 seconds
     setTimeout(() => {
       notification.classList.remove('show');
       setTimeout(() => {
@@ -309,193 +634,43 @@ class WishesSystem {
     }, 3000);
   }
 
-  generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  }
-
-  loadWishes() {
-    try {
-      const saved = localStorage.getItem('weddingWishes');
-      if (saved) {
-        this.wishes = JSON.parse(saved);
-        this.renderWishes();
-      } else {
-        // Load sample wishes if none exist
-        this.loadSampleWishes();
-      }
-    } catch (error) {
-      console.error('Error loading wishes:', error);
-      this.loadSampleWishes();
-    }
-  }
-
-  loadSampleWishes() {
-    this.wishes = [
-      {
-        id: '1',
-        name: 'Keluarga Besar',
-        message: 'Selamat menempuh hidup baru! Semoga menjadi keluarga yang sakinah, mawaddah, warahmah. Bahagia selalu!',
-        timestamp: new Date('2026-05-01').toISOString()
-      },
-      {
-        id: '2',
-        name: 'Sahabat Mempelai',
-        message: 'Akhirnya hari yang ditunggu datang juga! Semoga pernikahan kalian penuh berkah dan kebahagiaan. Love you both!',
-        timestamp: new Date('2026-05-02').toISOString()
-      }
-    ];
-    this.saveWishes();
-    this.renderWishes();
-  }
-
-  saveWishes() {
-    try {
-      localStorage.setItem('weddingWishes', JSON.stringify(this.wishes));
-    } catch (error) {
-      console.error('Error saving wishes:', error);
-    }
-  }
-
-  renderWishes() {
-    const wishesList = document.getElementById('wishesList');
-    const totalWishes = document.getElementById('totalWishes');
-    const pagination = document.getElementById('wishesPagination');
-    
-    if (!wishesList) return;
-
-    // Update total count
-    if (totalWishes) {
-      totalWishes.textContent = this.wishes.length;
-    }
-
-    // Calculate pagination
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    const paginatedWishes = this.wishes.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(this.wishes.length / this.itemsPerPage);
-
-    if (paginatedWishes.length === 0) {
-      wishesList.innerHTML = `
-        <div class="empty-wishes">
-          <i class="fas fa-comments"></i>
-          <h4>Belum ada ucapan</h4>
-          <p>Jadilah yang pertama memberikan ucapan dan doa!</p>
+  showErrorState() {
+    const section = document.getElementById('wishes');
+    if (section) {
+      section.innerHTML = `
+        <div class="container">
+          <h2 class="title">Ucapan & Doa</h2>
+          <div style="text-align: center; padding: 40px 20px; color: var(--muted);">
+            <p>Terjadi kesalahan dalam memuat halaman ucapan.</p>
+          </div>
         </div>
       `;
-    } else {
-      wishesList.innerHTML = paginatedWishes.map(wish => this.createWishItem(wish)).join('');
-    }
-
-    // Update pagination
-    this.updatePagination(totalPages);
-  }
-
-  createWishItem(wish) {
-    const timeAgo = this.getTimeAgo(wish.timestamp);
-    
-    return `
-      <div class="wish-item" data-aos="fade-up">
-        <div class="wish-avatar">
-          <i class="fas fa-user"></i>
-        </div>
-        <div class="wish-content">
-          <div class="wish-header">
-            <h4 class="wisher-name">${this.escapeHtml(wish.name)}</h4>
-            <span class="wish-time">${timeAgo}</span>
-          </div>
-          <p class="wish-message">${this.escapeHtml(wish.message)}</p>
-        </div>
-      </div>
-    `;
-  }
-
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  getTimeAgo(timestamp) {
-    const now = new Date();
-    const past = new Date(timestamp);
-    const diffInSeconds = Math.floor((now - past) / 1000);
-
-    if (diffInSeconds < 60) {
-      return 'Baru saja';
-    } else if (diffInSeconds < 3600) {
-      const minutes = Math.floor(diffInSeconds / 60);
-      return `${minutes} menit yang lalu`;
-    } else if (diffInSeconds < 86400) {
-      const hours = Math.floor(diffInSeconds / 3600);
-      return `${hours} jam yang lalu`;
-    } else if (diffInSeconds < 2592000) {
-      const days = Math.floor(diffInSeconds / 86400);
-      return `${days} hari yang lalu`;
-    } else {
-      return past.toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      });
     }
   }
 
-  updatePagination(totalPages) {
-    const prevBtn = document.querySelector('.btn-prev');
-    const nextBtn = document.querySelector('.btn-next');
-    const pageInfo = document.querySelector('.page-info');
-
-    if (prevBtn) {
-      prevBtn.disabled = this.currentPage === 1;
-    }
-    if (nextBtn) {
-      nextBtn.disabled = this.currentPage === totalPages || totalPages === 0;
-    }
-    if (pageInfo) {
-      pageInfo.textContent = `Halaman ${this.currentPage} dari ${totalPages}`;
-    }
-  }
-
-  previousPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.renderWishes();
-      this.scrollToWishesList();
-    }
-  }
-
-  nextPage() {
-    const totalPages = Math.ceil(this.wishes.length / this.itemsPerPage);
-    if (this.currentPage < totalPages) {
-      this.currentPage++;
-      this.renderWishes();
-      this.scrollToWishesList();
-    }
-  }
-
-  scrollToWishesList() {
-    const wishesList = document.getElementById('wishesList');
-    if (wishesList) {
-      wishesList.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
+  destroy() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
     }
   }
 
   addStyles() {
+    if (document.querySelector('style[data-wishes]')) return;
+
     const style = document.createElement('style');
+    style.setAttribute('data-wishes', 'true');
     style.textContent = `
       .wishes-section {
         padding: 80px 20px;
-        background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(233,241,234,0.7) 100%);
+        background: linear-gradient(180deg, rgba(233,241,234,0.7) 0%, rgba(255,255,255,0.9) 100%);
       }
 
       .section-subtitle {
         text-align: center;
         color: var(--muted);
         font-family: 'Cormorant Garamond', serif;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         margin-bottom: 50px;
         max-width: 600px;
         margin-left: auto;
@@ -503,47 +678,25 @@ class WishesSystem {
         line-height: 1.6;
       }
 
-      .wishes-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 40px;
-        max-width: 1000px;
-        margin: 0 auto;
+      .wish-form-container {
+        max-width: 700px;
+        margin: 0 auto 60px;
       }
 
-      .wishes-form-container {
-        background: rgba(255, 255, 255, 0.9);
+      .wish-form {
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(138, 168, 143, 0.2);
         border-radius: 20px;
-        padding: 30px;
-        box-shadow: 0 10px 30px rgba(33, 44, 38, 0.08);
-        height: fit-content;
-        position: sticky;
-        top: 20px;
+        padding: 40px;
+        box-shadow: 0 8px 25px rgba(33, 44, 38, 0.08);
       }
 
-      .form-header {
-        text-align: center;
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
         margin-bottom: 25px;
-      }
-
-      .form-header h3 {
-        font-family: 'Playfair Display', serif;
-        color: var(--sage-dark);
-        margin-bottom: 8px;
-        font-size: 1.3rem;
-      }
-
-      .form-header p {
-        font-family: 'Quicksand', sans-serif;
-        color: var(--muted);
-        margin: 0;
-        font-size: 0.9rem;
-      }
-
-      .wishes-form {
-        space-y: 20px;
       }
 
       .form-group {
@@ -552,60 +705,397 @@ class WishesSystem {
 
       .form-group label {
         display: block;
-        margin-bottom: 8px;
         font-family: 'Quicksand', sans-serif;
         font-weight: 600;
         color: var(--sage-dark);
-        font-size: 0.95rem;
+        margin-bottom: 10px;
+        font-size: 1rem;
       }
 
       .form-group input,
+      .form-group select,
       .form-group textarea {
         width: 100%;
-        padding: 12px 16px;
-        border: 1px solid rgba(138, 168, 143, 0.3);
-        border-radius: 10px;
+        padding: 14px 18px;
+        border: 2px solid rgba(138, 168, 143, 0.2);
+        border-radius: 12px;
         font-family: 'Quicksand', sans-serif;
-        font-size: 0.95rem;
+        font-size: 1rem;
         transition: all 0.3s ease;
         background: rgba(255, 255, 255, 0.8);
-        resize: vertical;
       }
 
       .form-group input:focus,
+      .form-group select:focus,
       .form-group textarea:focus {
         outline: none;
         border-color: var(--sage);
         box-shadow: 0 0 0 3px rgba(138, 168, 143, 0.1);
+        background: white;
       }
 
-      .form-group input::placeholder,
-      .form-group textarea::placeholder {
-        color: #a0a0a0;
+      .form-group input.error,
+      .form-group select.error,
+      .form-group textarea.error {
+        border-color: var(--error);
       }
 
       .error-message {
-        color: #e74c3c;
+        color: var(--error);
         font-size: 0.85rem;
-        margin-top: 5px;
+        margin-top: 8px;
         display: none;
-        font-family: 'Quicksand', sans-serif;
+      }
+
+      .textarea-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
       }
 
       .char-count {
-        text-align: right;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         color: var(--muted);
-        margin-top: 5px;
-        font-family: 'Quicksand', sans-serif;
       }
 
-      .btn-submit-wish {
-        width: 100%;
+      .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+      }
+
+      .btn-submit,
+      .btn-preview {
+        flex: 1;
+        padding: 16px 24px;
+        border: none;
+        border-radius: 25px;
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-size: 1rem;
+      }
+
+      .btn-submit {
         background: linear-gradient(135deg, var(--sage), var(--sage-dark));
         color: white;
+      }
+
+      .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+
+      .btn-submit:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(138, 168, 143, 0.3);
+      }
+
+      .btn-preview {
+        background: rgba(138, 168, 143, 0.1);
+        color: var(--sage-dark);
+        border: 2px solid rgba(138, 168, 143, 0.3);
+      }
+
+      .btn-preview:hover {
+        background: rgba(138, 168, 143, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .wishes-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .wishes-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid rgba(138, 168, 143, 0.2);
+      }
+
+      .wishes-title {
+        font-family: 'Playfair Display', serif;
+        color: var(--sage-dark);
+        font-size: 1.5rem;
+        margin: 0;
+      }
+
+      .wishes-stats {
+        font-family: 'Quicksand', sans-serif;
+        color: var(--muted);
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .wishes-list {
+        space-y: 25px;
+      }
+
+      .wish-item {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(138, 168, 143, 0.1);
+        border-radius: 16px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: wishItemAppear 0.6s ease forwards;
+        animation-play-state: paused;
+      }
+
+      @keyframes wishItemAppear {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .wish-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(33, 44, 38, 0.1);
+      }
+
+      .wish-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .guest-avatar {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--sage), var(--sage-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .guest-info {
+        flex: 1;
+      }
+
+      .guest-name {
+        font-family: 'Quicksand', sans-serif;
+        color: var(--sage-dark);
+        margin: 0 0 6px 0;
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      .wish-relation {
+        font-family: 'Quicksand', sans-serif;
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .wish-time {
+        font-family: 'Quicksand', sans-serif;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .wish-message p {
+        font-family: 'Quicksand', sans-serif;
+        color: var(--charcoal);
+        line-height: 1.6;
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .wish-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(138, 168, 143, 0.1);
+      }
+
+      .wish-like-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border: 1px solid rgba(138, 168, 143, 0.3);
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+      }
+
+      .wish-like-btn:hover {
+        border-color: var(--sage);
+        color: var(--sage);
+      }
+
+      .wish-like-btn.liked {
+        background: rgba(255, 182, 193, 0.2);
+        border-color: #ffb6c1;
+        color: #e91e63;
+      }
+
+      .like-count {
+        font-weight: 600;
+      }
+
+      .wishes-empty {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--muted);
+      }
+
+      .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        color: rgba(138, 168, 143, 0.5);
+      }
+
+      .wishes-empty h4 {
+        font-family: 'Playfair Display', serif;
+        color: var(--sage-dark);
+        margin: 0 0 15px 0;
+        font-size: 1.4rem;
+      }
+
+      .wishes-empty p {
+        font-family: 'Quicksand', sans-serif;
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .wishes-load-more {
+        text-align: center;
+        margin-top: 40px;
+      }
+
+      .btn-load-more {
+        padding: 14px 28px;
+        border: 2px solid rgba(138, 168, 143, 0.3);
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 25px;
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 600;
+        color: var(--sage-dark);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+      }
+
+      .btn-load-more:hover {
+        background: rgba(138, 168, 143, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .modal.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90%;
+        overflow-y: auto;
+        position: relative;
+        animation: modalAppear 0.3s ease;
+      }
+
+      @keyframes modalAppear {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: none;
         border: none;
-        padding: 15px;
+        font-size: 2rem;
+        cursor: pointer;
+        color: var(--muted);
+        transition: color 0.3s ease;
+      }
+
+      .modal-close:hover {
+        color: var(--sage-dark);
+      }
+
+      .modal-title {
+        font-family: 'Playfair Display', serif;
+        color: var(--sage-dark);
+        margin-bottom: 25px;
+        text-align: center;
+        font-size: 1.5rem;
+      }
+
+      .preview-content {
+        margin: 25px 0;
+      }
+
+      .preview-wish {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        padding: 25px;
+        border: 1px solid rgba(138, 168, 143, 0.2);
+      }
+
+      .preview-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        flex: 1;
+        padding: 14px 20px;
+        border: none;
         border-radius: 25px;
         font-family: 'Quicksand', sans-serif;
         font-weight: 600;
@@ -618,297 +1108,125 @@ class WishesSystem {
         font-size: 1rem;
       }
 
-      .btn-submit-wish:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(138, 168, 143, 0.3);
-      }
-
-      .btn-submit-wish:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-      }
-
-      .wishes-list-container {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(138, 168, 143, 0.2);
-        border-radius: 20px;
-        padding: 30px;
-        box-shadow: 0 10px 30px rgba(33, 44, 38, 0.08);
-      }
-
-      .wishes-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid rgba(138, 168, 143, 0.2);
-      }
-
-      .wishes-header h3 {
-        font-family: 'Playfair Display', serif;
-        color: var(--sage-dark);
-        margin: 0;
-        font-size: 1.3rem;
-      }
-
-      .wishes-stats {
-        font-family: 'Quicksand', sans-serif;
-        color: var(--muted);
-        font-weight: 600;
-        font-size: 0.9rem;
-        background: rgba(138, 168, 143, 0.1);
-        padding: 6px 12px;
-        border-radius: 15px;
-      }
-
-      .wishes-list {
-        max-height: 500px;
-        overflow-y: auto;
-        space-y: 20px;
-        margin-bottom: 25px;
-      }
-
-      .wishes-list::-webkit-scrollbar {
-        width: 6px;
-      }
-
-      .wishes-list::-webkit-scrollbar-track {
-        background: rgba(138, 168, 143, 0.1);
-        border-radius: 3px;
-      }
-
-      .wishes-list::-webkit-scrollbar-thumb {
-        background: var(--sage);
-        border-radius: 3px;
-      }
-
-      .loading-wishes {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--muted);
-      }
-
-      .loading-wishes i {
-        font-size: 2rem;
-        margin-bottom: 15px;
-        display: block;
-      }
-
-      .empty-wishes {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--muted);
-      }
-
-      .empty-wishes i {
-        font-size: 3rem;
-        margin-bottom: 15px;
-        display: block;
-        color: var(--sage);
-      }
-
-      .empty-wishes h4 {
-        font-family: 'Playfair Display', serif;
-        color: var(--sage-dark);
-        margin-bottom: 8px;
-      }
-
-      .wish-item {
-        display: flex;
-        gap: 15px;
-        padding: 20px;
-        background: rgba(138, 168, 143, 0.05);
-        border-radius: 15px;
-        transition: all 0.3s ease;
-        border: 1px solid transparent;
-      }
-
-      .wish-item:hover {
-        border-color: rgba(138, 168, 143, 0.2);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(33, 44, 38, 0.1);
-      }
-
-      .wish-avatar {
-        width: 50px;
-        height: 50px;
+      .btn-primary {
         background: linear-gradient(135deg, var(--sage), var(--sage-dark));
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         color: white;
-        font-size: 1.2rem;
-        flex-shrink: 0;
       }
 
-      .wish-content {
-        flex: 1;
-        min-width: 0;
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(138, 168, 143, 0.3);
       }
 
-      .wish-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 8px;
-        gap: 10px;
-      }
-
-      .wisher-name {
-        font-family: 'Quicksand', sans-serif;
-        color: var(--sage-dark);
-        margin: 0;
-        font-weight: 600;
-        font-size: 0.95rem;
-      }
-
-      .wish-time {
-        font-family: 'Quicksand', sans-serif;
-        color: var(--muted);
-        font-size: 0.8rem;
-        white-space: nowrap;
-      }
-
-      .wish-message {
-        font-family: 'Quicksand', sans-serif;
-        color: var(--charcoal);
-        margin: 0;
-        line-height: 1.5;
-        word-wrap: break-word;
-      }
-
-      .wishes-pagination {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 20px;
-        border-top: 1px solid rgba(138, 168, 143, 0.2);
-      }
-
-      .btn-prev,
-      .btn-next {
+      .btn-secondary {
         background: rgba(138, 168, 143, 0.1);
         color: var(--sage-dark);
-        border: 1px solid rgba(138, 168, 143, 0.3);
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-family: 'Quicksand', sans-serif;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.85rem;
+        border: 2px solid rgba(138, 168, 143, 0.3);
       }
 
-      .btn-prev:hover:not(:disabled),
-      .btn-next:hover:not(:disabled) {
-        background: var(--sage-dark);
-        color: white;
-        transform: translateY(-1px);
+      .btn-secondary:hover {
+        background: rgba(138, 168, 143, 0.2);
+        transform: translateY(-2px);
       }
 
-      .btn-prev:disabled,
-      .btn-next:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-      }
-
-      .page-info {
-        font-family: 'Quicksand', sans-serif;
-        color: var(--muted);
-        font-size: 0.9rem;
-        font-weight: 600;
-      }
-
-      /* Responsive */
       @media (max-width: 768px) {
-        .wishes-container {
+        .wishes-section {
+          padding: 60px 15px;
+        }
+
+        .section-subtitle {
+          font-size: 1.1rem;
+          margin-bottom: 40px;
+        }
+
+        .wish-form {
+          padding: 30px 25px;
+        }
+
+        .form-row {
           grid-template-columns: 1fr;
-          gap: 30px;
+          gap: 0;
         }
 
-        .wishes-form-container {
-          position: static;
-        }
-
-        .wishes-form-container,
-        .wishes-list-container {
-          padding: 25px 20px;
+        .form-actions {
+          flex-direction: column;
         }
 
         .wishes-header {
           flex-direction: column;
-          gap: 10px;
           align-items: flex-start;
-        }
-
-        .wishes-list {
-          max-height: 400px;
+          gap: 15px;
         }
 
         .wish-item {
-          padding: 15px;
+          padding: 20px;
         }
 
-        .wish-avatar {
+        .wish-header {
+          flex-wrap: wrap;
+        }
+
+        .guest-info {
+          min-width: 0;
+        }
+
+        .preview-actions {
+          flex-direction: column;
+        }
+
+        .modal-content {
+          padding: 30px 25px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .wish-form {
+          padding: 25px 20px;
+        }
+
+        .wish-item {
+          padding: 18px 15px;
+        }
+
+        .guest-avatar {
           width: 45px;
           height: 45px;
           font-size: 1.1rem;
         }
 
-        .wishes-pagination {
-          flex-direction: column;
-          gap: 15px;
-        }
-
-        .btn-prev,
-        .btn-next {
-          width: 100%;
-          justify-content: center;
+        .modal-content {
+          padding: 25px 20px;
         }
       }
 
-      @media (max-width: 480px) {
-        .wishes-form-container,
-        .wishes-list-container {
-          padding: 20px 15px;
+      @media (prefers-reduced-motion: reduce) {
+        .wish-item,
+        .btn-submit,
+        .btn-preview,
+        .wish-like-btn,
+        .btn-load-more {
+          transition: none;
+          animation: none;
         }
-
-        .form-group {
-          margin-bottom: 20px;
-        }
-
+        
         .wish-item {
-          flex-direction: column;
-          text-align: center;
-          gap: 10px;
-        }
-
-        .wish-header {
-          flex-direction: column;
-          gap: 5px;
-        }
-
-        .wish-avatar {
-          align-self: center;
+          opacity: 1;
+          transform: none;
         }
       }
     `;
 
-    if (!document.querySelector('style[data-wishes]')) {
-      style.setAttribute('data-wishes', 'true');
-      document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
   }
 }
 
-// Initialize wishes system
-document.addEventListener('DOMContentLoaded', () => {
-  new WishesSystem();
-});
+// Initialize wishes
+let weddingWishes;
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    weddingWishes = new WeddingWishes();
+  });
+} else {
+  weddingWishes = new WeddingWishes();
+}
