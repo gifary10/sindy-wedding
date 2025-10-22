@@ -1,29 +1,16 @@
-// detail.js - Event Details - OPTIMIZED
+// detail.js - Event Details - OPTIMIZED & FIXED
 class EventDetails {
   constructor() {
     this.events = [
       {
-        id: 'akad',
-        title: 'Akad Nikah',
+        id: 'akad-resepsi',
+        title: 'Akad Nikah & Resepsi',
         date: 'Sabtu, 27 Juni 2026',
-        time: '10:00 - 11:00 WIB',
-        location: 'Soedirman Convention Centre',
-        address: 'Jl. Raya Batujajar No.247, Batujajar Bar., Kec. Batujajar, Kabupaten Bandung Barat, Jawa Barat 40561',
-        description: 'Prosesi akad nikah akan dilaksanakan dengan khidmat di Ballroom A Soedirman Convention Centre',
-        dressCode: 'Formal Muslim',
-        mapLink: 'https://maps.google.com/?q=Soedirman+Convention+Centre,Batujajar',
-        calendarLink: '#'
-      },
-      {
-        id: 'resepsi',
-        title: 'Resepsi Pernikahan',
-        date: 'Sabtu, 27 Juni 2026',
-        time: '12:00 - 16:00 WIB',
-        location: 'Soedirman Convention Centre',
-        address: 'Jl. Raya Batujajar No.247, Batujajar Bar., Kec. Batujajar, Kabupaten Bandung Barat, Jawa Barat 40561',
-        description: 'Syukuran pernikahan dan silaturahmi dengan keluarga dan sahabat di Grand Ballroom',
-        dressCode: 'Formal / Semi Formal',
-        mapLink: 'https://maps.google.com/?q=Soedirman+Convention+Centre,Batujajar',
+        time: '10:00 - 16:00 WIB',
+        location: 'Masjid Al-Ikhlas & Grand Ballroom Hotel Santika',
+        address: 'Jl. Kemerdekaan No. 123, Jakarta Selatan',
+        description: 'Prosesi akad nikah akan dilaksanakan dengan khidmat di Masjid Al-Ikhlas, dilanjutkan dengan syukuran pernikahan dan silaturahmi dengan keluarga dan sahabat',
+        dressCode: 'Formal Muslim untuk Akad, Formal/Semi Formal untuk Resepsi',
         calendarLink: '#'
       }
     ];
@@ -36,10 +23,14 @@ class EventDetails {
       this.setupEventListeners();
     } catch (error) {
       console.error('Error initializing event details:', error);
+      this.showErrorState();
     }
   }
 
   createEventsSection() {
+    // Cek apakah section sudah ada
+    if (document.getElementById('details')) return;
+
     const section = document.createElement('section');
     section.id = 'details';
     section.className = 'events-section';
@@ -54,46 +45,6 @@ class EventDetails {
           ${this.events.map(event => this.createEventCard(event)).join('')}
         </div>
 
-        <!-- Venue Highlight -->
-        <div class="venue-highlight" data-aos="fade-up">
-          <div class="venue-content">
-            <div class="venue-info">
-              <h3>Soedirman Convention Centre</h3>
-              <p>Sebagai venue eksklusif di Bandung Barat, Soedirman Convention Centre menyediakan fasilitas lengkap dan nyaman untuk menyelenggarakan acara pernikahan kami. Dengan kapasitas yang luas, parkir yang memadai, dan akses yang mudah, kami memilih venue ini untuk memberikan pengalaman terbaik bagi tamu undangan.</p>
-              <div class="venue-features">
-                <div class="feature-item">
-                  <i class="fas fa-check-circle"></i>
-                  <span>Ballroom mewah dan elegan</span>
-                </div>
-                <div class="feature-item">
-                  <i class="fas fa-check-circle"></i>
-                  <span>Parkir luas untuk 300+ kendaraan</span>
-                </div>
-                <div class="feature-item">
-                  <i class="fas fa-check-circle"></i>
-                  <span>Akses mudah dari tol Pasteur</span>
-                </div>
-                <div class="feature-item">
-                  <i class="fas fa-check-circle"></i>
-                  <span>Fasilitas AC dan sound system lengkap</span>
-                </div>
-              </div>
-            </div>
-            <div class="venue-map">
-              <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3512.1076345299734!2d107.48961978885498!3d-6.9155748000000035!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5465d772635%3A0xadf1c17b55b1d366!2sSoedirman%20Convention%20Centre!5e1!3m2!1sen!2sid!4v1761030302706!5m2!1sen!2sid" 
-                width="100%" 
-                height="300" 
-                style="border:0; border-radius: 10px;" 
-                allowfullscreen="" 
-                loading="lazy" 
-                referrerpolicy="no-referrer-when-downgrade">
-              </iframe>
-            </div>
-          </div>
-        </div>
-
-        <!-- Additional Info -->
         <div class="additional-info" data-aos="fade-up">
           <div class="info-grid">
             <div class="info-item">
@@ -137,17 +88,24 @@ class EventDetails {
       </div>
     `;
 
-    document.getElementById('content').appendChild(section);
+    const content = document.getElementById('content');
+    if (content) {
+      content.appendChild(section);
+    } else {
+      console.error('Content element not found');
+      return;
+    }
+
     this.addStyles();
   }
 
   createEventCard(event) {
     return `
-      <div class="event-card" data-aos="flip-up" data-event="${event.id}">
+      <div class="event-card" data-event="${event.id}">
         <div class="event-header">
           <h3 class="event-title">${event.title}</h3>
           <div class="event-icon">
-            <i class="fas ${event.id === 'akad' ? 'fa-mosque' : 'fa-glass-cheers'}"></i>
+            <i class="fas fa-glass-cheers"></i>
           </div>
         </div>
         
@@ -178,11 +136,7 @@ class EventDetails {
         </div>
 
         <div class="event-actions">
-          <button class="btn-map" onclick="eventDetails.openMap('${event.mapLink}')">
-            <i class="fas fa-map"></i>
-            Lihat Peta
-          </button>
-          <button class="btn-calendar" onclick="eventDetails.addToCalendar('${event.id}')">
+          <button class="btn-calendar" data-event="${event.id}">
             <i class="fas fa-calendar-plus"></i>
             Tambah ke Kalender
           </button>
@@ -192,76 +146,51 @@ class EventDetails {
   }
 
   setupEventListeners() {
-    // Map buttons
-    const mapButtons = document.querySelectorAll('.btn-map');
-    mapButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const eventId = button.closest('.event-card').dataset.event;
-        const event = this.events.find(ev => ev.id === eventId);
-        if (event) {
-          this.openMap(event.mapLink);
-        }
-      });
-    });
-
-    // Calendar buttons
-    const calendarButtons = document.querySelectorAll('.btn-calendar');
-    calendarButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const eventId = button.closest('.event-card').dataset.event;
+    // Delegate events for better performance
+    document.addEventListener('click', (e) => {
+      // Calendar buttons
+      if (e.target.closest('.btn-calendar')) {
+        const button = e.target.closest('.btn-calendar');
+        const eventId = button.dataset.event;
         this.addToCalendar(eventId);
-      });
-    });
+        return;
+      }
 
-    // Card click effects
-    const eventCards = document.querySelectorAll('.event-card');
-    eventCards.forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (!e.target.closest('.event-actions')) {
-          card.classList.toggle('expanded');
-        }
-      });
+      // Card click effects
+      if (e.target.closest('.event-card') && !e.target.closest('.event-actions')) {
+        const card = e.target.closest('.event-card');
+        card.classList.toggle('expanded');
+      }
     });
-  }
-
-  openMap(mapLink) {
-    if (mapLink && mapLink !== '#') {
-      window.open(mapLink, '_blank', 'noopener,noreferrer');
-    } else {
-      this.showNotification('Tautan peta belum tersedia', 'info');
-    }
   }
 
   addToCalendar(eventId) {
     const event = this.events.find(ev => ev.id === eventId);
-    if (!event) return;
+    if (!event) {
+      this.showNotification('Event tidak ditemukan', 'error');
+      return;
+    }
 
-    // Create calendar event data
-    const startDate = event.id === 'akad' 
-      ? new Date('2026-06-27T10:00:00+07:00')
-      : new Date('2026-06-27T12:00:00+07:00');
-    
-    const endDate = event.id === 'akad'
-      ? new Date('2026-06-27T11:00:00+07:00')
-      : new Date('2026-06-27T16:00:00+07:00');
+    try {
+      const startDate = new Date('2026-06-27T10:00:00+07:00');
+      const endDate = new Date('2026-06-27T16:00:00+07:00');
 
-    const calendarData = {
-      title: `Pernikahan ${event.title} - Gifary & Sindy`,
-      description: `${event.description}\\n\\nLokasi: ${event.location}\\nAlamat: ${event.address}`,
-      location: event.location,
-      start: startDate,
-      end: endDate
-    };
+      const calendarData = {
+        title: `Pernikahan ${event.title} - Gifary & Sindy`,
+        description: `${event.description}\\n\\nLokasi: ${event.location}\\nAlamat: ${event.address}`,
+        location: event.location,
+        start: startDate,
+        end: endDate
+      };
 
-    // Generate Google Calendar URL
-    const googleCalendarUrl = this.generateGoogleCalendarUrl(calendarData);
-    
-    // Open calendar in new tab
-    window.open(googleCalendarUrl, '_blank', 'noopener,noreferrer');
-    
-    this.showNotification('Acara telah ditambahkan ke Google Calendar', 'success');
+      const googleCalendarUrl = this.generateGoogleCalendarUrl(calendarData);
+      
+      window.open(googleCalendarUrl, '_blank', 'noopener,noreferrer');
+      this.showNotification('Acara telah ditambahkan ke Google Calendar', 'success');
+    } catch (error) {
+      console.error('Error adding to calendar:', error);
+      this.showNotification('Gagal menambahkan ke kalender', 'error');
+    }
   }
 
   generateGoogleCalendarUrl(data) {
@@ -281,7 +210,13 @@ class EventDetails {
   }
 
   showNotification(message, type = 'info') {
-    // Create notification element
+    // Use existing notification function if available
+    if (window.showNotification) {
+      window.showNotification(message, type);
+      return;
+    }
+
+    // Fallback notification
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
@@ -293,10 +228,7 @@ class EventDetails {
 
     document.body.appendChild(notification);
 
-    // Show notification
     setTimeout(() => notification.classList.add('show'), 100);
-
-    // Auto remove after 3 seconds
     setTimeout(() => {
       notification.classList.remove('show');
       setTimeout(() => {
@@ -307,8 +239,25 @@ class EventDetails {
     }, 3000);
   }
 
+  showErrorState() {
+    const section = document.getElementById('details');
+    if (section) {
+      section.innerHTML = `
+        <div class="container">
+          <h2 class="title">Detail Acara</h2>
+          <div style="text-align: center; padding: 40px 20px; color: var(--muted);">
+            <p>Terjadi kesalahan dalam memuat detail acara.</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+
   addStyles() {
+    if (document.querySelector('style[data-events]')) return;
+
     const style = document.createElement('style');
+    style.setAttribute('data-events', 'true');
     style.textContent = `
       .events-section {
         padding: 80px 20px;
@@ -319,7 +268,7 @@ class EventDetails {
         text-align: center;
         color: var(--muted);
         font-family: 'Cormorant Garamond', serif;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         margin-bottom: 50px;
         max-width: 600px;
         margin-left: auto;
@@ -329,19 +278,19 @@ class EventDetails {
 
       .events-container {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        grid-template-columns: 1fr;
         gap: 30px;
-        max-width: 1000px;
-        margin: 0 auto 60px;
+        max-width: 700px;
+        margin: 0 auto;
       }
 
       .event-card {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(138, 168, 143, 0.2);
         border-radius: 20px;
         padding: 30px;
-        box-shadow: 0 10px 30px rgba(33, 44, 38, 0.08);
+        box-shadow: 0 8px 25px rgba(33, 44, 38, 0.08);
         transition: all 0.3s ease;
         cursor: pointer;
         position: relative;
@@ -360,7 +309,7 @@ class EventDetails {
 
       .event-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(33, 44, 38, 0.12);
+        box-shadow: 0 15px 35px rgba(33, 44, 38, 0.12);
       }
 
       .event-card.expanded {
@@ -403,28 +352,29 @@ class EventDetails {
         align-items: flex-start;
         gap: 12px;
         margin-bottom: 15px;
-        padding: 12px;
+        padding: 15px;
         background: rgba(138, 168, 143, 0.05);
-        border-radius: 10px;
-        transition: all 0.3s ease;
+        border-radius: 12px;
+        transition: background 0.3s ease;
       }
 
       .detail-item:hover {
         background: rgba(138, 168, 143, 0.1);
-        transform: translateX(5px);
       }
 
       .detail-item i {
         color: var(--sage-dark);
         margin-top: 2px;
-        min-width: 16px;
+        min-width: 18px;
+        font-size: 1rem;
       }
 
       .detail-item span,
       .detail-item div {
-        font-family: 'Quicksand', sans-serif;
         color: var(--charcoal);
+        font-family: 'Quicksand', sans-serif;
         line-height: 1.5;
+        font-size: 1rem;
       }
 
       .detail-item strong {
@@ -440,16 +390,15 @@ class EventDetails {
 
       .event-actions {
         display: flex;
-        gap: 12px;
+        gap: 15px;
         margin-top: 25px;
         flex-wrap: wrap;
       }
 
-      .btn-map,
       .btn-calendar {
         flex: 1;
-        min-width: 140px;
-        padding: 12px 20px;
+        min-width: 220px;
+        padding: 14px 24px;
         border: none;
         border-radius: 25px;
         font-family: 'Quicksand', sans-serif;
@@ -459,100 +408,22 @@ class EventDetails {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        font-size: 0.9rem;
-      }
-
-      .btn-map {
+        gap: 10px;
+        font-size: 1rem;
         background: linear-gradient(135deg, var(--sage), var(--sage-dark));
         color: white;
       }
 
-      .btn-map:hover {
+      .btn-calendar:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(138, 168, 143, 0.3);
       }
 
-      .btn-calendar {
-        background: rgba(138, 168, 143, 0.1);
-        color: var(--sage-dark);
-        border: 1px solid rgba(138, 168, 143, 0.3);
-      }
-
-      .btn-calendar:hover {
-        background: var(--sage-dark);
-        color: white;
-        transform: translateY(-2px);
-      }
-
-      /* Venue Highlight */
-      .venue-highlight {
-        max-width: 1000px;
-        margin: 60px auto;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 40px;
-        box-shadow: 0 15px 35px rgba(33, 44, 38, 0.08);
-        border: 1px solid rgba(138, 168, 143, 0.2);
-      }
-
-      .venue-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 40px;
-        align-items: start;
-      }
-
-      .venue-info h3 {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.5rem;
-        color: var(--sage-dark);
-        margin-bottom: 20px;
-        font-weight: 600;
-      }
-
-      .venue-info p {
-        font-family: 'Quicksand', sans-serif;
-        color: var(--charcoal);
-        line-height: 1.6;
-        margin-bottom: 25px;
-      }
-
-      .venue-features {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-
-      .feature-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px;
-        background: rgba(138, 168, 143, 0.05);
-        border-radius: 8px;
-        font-family: 'Quicksand', sans-serif;
-        color: var(--charcoal);
-      }
-
-      .feature-item i {
-        color: var(--sage-dark);
-      }
-
-      .venue-map {
-        height: 100%;
-      }
-
-      .venue-map iframe {
-        border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(33, 44, 38, 0.1);
-      }
-
-      /* Additional Info */
       .additional-info {
-        max-width: 1000px;
-        margin: 0 auto;
+        margin-top: 60px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
       }
 
       .info-grid {
@@ -567,15 +438,14 @@ class EventDetails {
         gap: 15px;
         padding: 20px;
         background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        border: 1px solid rgba(138, 168, 143, 0.2);
+        border-radius: 12px;
+        border: 1px solid rgba(138, 168, 143, 0.1);
         transition: all 0.3s ease;
       }
 
       .info-item:hover {
         transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(33, 44, 38, 0.1);
+        box-shadow: 0 8px 20px rgba(33, 44, 38, 0.1);
       }
 
       .info-icon {
@@ -595,6 +465,7 @@ class EventDetails {
         color: var(--sage-dark);
         margin: 0 0 5px 0;
         font-weight: 600;
+        font-size: 1rem;
       }
 
       .info-content p {
@@ -602,44 +473,27 @@ class EventDetails {
         color: var(--muted);
         margin: 0;
         font-size: 0.9rem;
+        line-height: 1.4;
       }
 
-      /* Responsive */
       @media (max-width: 768px) {
+        .events-section {
+          padding: 60px 15px;
+        }
+
+        .section-subtitle {
+          font-size: 1.1rem;
+          margin-bottom: 40px;
+        }
+
         .events-container {
-          grid-template-columns: 1fr;
-          gap: 20px;
+          gap: 25px;
         }
 
         .event-card {
-          padding: 25px;
+          padding: 25px 20px;
         }
 
-        .event-actions {
-          flex-direction: column;
-        }
-
-        .btn-map,
-        .btn-calendar {
-          min-width: auto;
-        }
-
-        .venue-content {
-          grid-template-columns: 1fr;
-          gap: 30px;
-        }
-
-        .venue-highlight {
-          padding: 30px;
-          margin: 40px auto;
-        }
-
-        .info-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      @media (max-width: 480px) {
         .event-header {
           flex-direction: column;
           gap: 15px;
@@ -650,8 +504,43 @@ class EventDetails {
           font-size: 1.3rem;
         }
 
-        .venue-highlight {
-          padding: 20px;
+        .event-icon {
+          width: 45px;
+          height: 45px;
+          font-size: 1.1rem;
+        }
+
+        .event-actions {
+          flex-direction: column;
+        }
+
+        .btn-calendar {
+          min-width: auto;
+          width: 100%;
+        }
+
+        .info-grid {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+
+        .info-item {
+          padding: 18px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .event-card {
+          padding: 20px 15px;
+        }
+
+        .event-title {
+          font-size: 1.2rem;
+        }
+
+        .detail-item {
+          padding: 12px;
+          font-size: 0.9rem;
         }
 
         .info-item {
@@ -660,12 +549,17 @@ class EventDetails {
       }
     `;
 
-    if (!document.querySelector('style[data-events]')) {
-      style.setAttribute('data-events', 'true');
-      document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
   }
 }
 
 // Initialize event details
-const eventDetails = new EventDetails();
+let eventDetails;
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    eventDetails = new EventDetails();
+  });
+} else {
+  eventDetails = new EventDetails();
+}
