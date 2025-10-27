@@ -1,0 +1,514 @@
+:root {
+  --ash-gray: #cad2c5ff;
+  --cambridge-blue: #84a98cff;
+  --hookers-green: #52796fff;
+  --dark-slate-gray: #354f52ff;
+  --charcoal: #2f3e46ff;
+  --light: #F5F5F5;
+  --white: #ffffff;
+  --gold: #D4AF37;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.6;
+  color: var(--charcoal);
+  overflow-x: hidden;
+  background-color: var(--white);
+}
+
+/* Header Styles */
+header {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.video-background {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.header-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  z-index: 1;
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 0 20px;
+}
+
+/* Header Countdown Styles */
+.header-countdown {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.header-countdown-item {
+  text-align: center;
+  min-width: 80px;
+}
+
+.header-countdown-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.header-countdown-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Initials Styles */
+.initials-container {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.initials {
+  font-family: 'Great Vibes', cursive;
+  font-size: 8rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.initials-decoration {
+  width: 200px;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--gold) 50%, 
+    transparent 100%);
+  margin: 0 auto;
+  position: relative;
+}
+
+.initials-decoration::before,
+.initials-decoration::after {
+  content: '❦';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gold);
+  font-size: 1.2rem;
+}
+
+.initials-decoration::before {
+  left: 0;
+}
+
+.initials-decoration::after {
+  right: 0;
+}
+
+/* Wedding Title Styles */
+.wedding-title {
+  margin-bottom: 2rem;
+}
+
+.the-wedding-of {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.couple-names {
+  font-family: 'Playfair Display', serif;
+  font-size: 4rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+.wedding-date {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.3rem;
+  color: var(--gold);
+  letter-spacing: 3px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Header Buttons */
+.header-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-custom {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 30px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
+  text-decoration: none;
+  border-radius: 50px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.btn-custom:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Section Styles */
+section {
+  padding: 80px 0;
+  position: relative;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: var(--dark-slate-gray);
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--hookers-green), var(--cambridge-blue));
+  border-radius: 2px;
+}
+
+/* Loading State */
+body.loading {
+  overflow: hidden;
+}
+
+body.loading::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--ash-gray), var(--cambridge-blue));
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+body.loading::after {
+  content: 'G & S';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Great Vibes', cursive;
+  font-size: 4rem;
+  color: var(--white);
+  z-index: 10000;
+  animation: pulse 2s infinite;
+}
+
+body.loaded {
+  overflow-x: hidden;
+}
+
+body.loaded::before,
+body.loaded::after {
+  display: none;
+}
+
+/* Floating Hearts Animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 0.8;
+  }
+}
+
+.floating-heart {
+  position: absolute;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+  z-index: 1;
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .couple-names {
+    font-size: 3.5rem;
+  }
+  
+  .initials {
+    font-size: 7rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .couple-names {
+    font-size: 3rem;
+  }
+  
+  .initials {
+    font-size: 6rem;
+  }
+  
+  .header-countdown-number {
+    font-size: 2rem;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0 15px;
+  }
+  
+  .couple-names {
+    font-size: 2.5rem;
+  }
+  
+  .initials {
+    font-size: 5rem;
+  }
+  
+  .the-wedding-of {
+    font-size: 1.2rem;
+  }
+  
+  .wedding-date {
+    font-size: 1.1rem;
+  }
+  
+  .header-countdown {
+    gap: 1rem;
+  }
+  
+  .header-countdown-item {
+    min-width: 70px;
+  }
+  
+  .header-countdown-number {
+    font-size: 1.8rem;
+  }
+  
+  .header-countdown-label {
+    font-size: 0.8rem;
+  }
+  
+  .header-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn-custom {
+    width: 200px;
+    justify-content: center;
+  }
+  
+  section {
+    padding: 60px 0;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .couple-names {
+    font-size: 2rem;
+  }
+  
+  .initials {
+    font-size: 4rem;
+  }
+  
+  .the-wedding-of {
+    font-size: 1rem;
+    letter-spacing: 2px;
+  }
+  
+  .wedding-date {
+    font-size: 1rem;
+    letter-spacing: 2px;
+  }
+  
+  .header-countdown {
+    gap: 0.8rem;
+  }
+  
+  .header-countdown-item {
+    min-width: 60px;
+  }
+  
+  .header-countdown-number {
+    font-size: 1.5rem;
+  }
+  
+  .header-countdown-label {
+    font-size: 0.7rem;
+  }
+  
+  .section-title {
+    font-size: 1.8rem;
+  }
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.mt-4 {
+  margin-top: 1.5rem;
+}
+
+.p-4 {
+  padding: 1.5rem;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ash-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--hookers-green);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--dark-slate-gray);
+}
+
+/* Selection Color */
+::selection {
+  background: var(--cambridge-blue);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--cambridge-blue);
+  color: white;
+}
+
+/* Focus Styles */
+button:focus,
+a:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--cambridge-blue);
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .btn-custom,
+  .bottom-nav {
+    display: none !important;
+  }
+  
+  body {
+    color: black;
+    background: white;
+  }
+  
+  .header-overlay {
+    background: rgba(0, 0, 0, 0.3);
+  }
+}
