@@ -42,42 +42,6 @@ export class WeddingFooter {
             transparent 100%);
         }
 
-        .footer-hearts {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-          z-index: 1;
-        }
-
-        .footer-heart {
-          position: absolute;
-          color: var(--cambridge-blue);
-          font-size: 1rem;
-          opacity: 0;
-          animation: footerHeartFloat 8s ease-in-out infinite;
-        }
-
-        @keyframes footerHeartFloat {
-          0% {
-            transform: translateY(100px) scale(0) rotate(0deg);
-            opacity: 0;
-          }
-          20% {
-            opacity: 0.6;
-            transform: translateY(0) scale(1) rotate(180deg);
-          }
-          80% {
-            opacity: 0.6;
-          }
-          100% {
-            transform: translateY(-100px) scale(0) rotate(360deg);
-            opacity: 0;
-          }
-        }
-
         .footer-content {
           position: relative;
           z-index: 2;
@@ -116,151 +80,106 @@ export class WeddingFooter {
 
         .footer-quote {
           font-family: 'Dancing Script', cursive;
-          font-size: 1.8rem;
+          font-size: 1.2rem;
           text-align: center;
-          margin: 3rem 0;
+          margin: 1rem;
           color: var(--ash-gray);
           font-style: italic;
           position: relative;
-          padding: 0 2rem;
+
         }
 
-        .footer-quote::before,
-        .footer-quote::after {
-          content: '"';
-          font-size: 3rem;
-          color: var(--gold);
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-        }
-
-        .footer-quote::before {
-          left: 0;
-        }
-
-        .footer-quote::after {
-          right: 0;
-        }
-
-        .footer-family {
+        .gift-section {
           text-align: center;
-          margin-bottom: 3rem;
-        }
-
-        .family-title {
-          font-family: 'Playfair Display', serif;
-          font-size: 1.5rem;
-          color: var(--gold);
           margin-bottom: 2rem;
-          position: relative;
-          display: inline-block;
+          padding: 0 1rem;
         }
 
-        .family-title::after {
-          content: '';
-          position: absolute;
-          bottom: -8px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 60px;
-          height: 2px;
-          background: linear-gradient(to right, var(--cambridge-blue), var(--ash-gray));
-        }
-
-        .family-names {
-          display: flex;
-          justify-content: center;
-          gap: 4rem;
-          flex-wrap: wrap;
-        }
-
-        .family-group {
-          text-align: center;
-        }
-
-        .family-role {
-          font-family: 'Roboto', sans-serif;
-          font-size: 1rem;
-          color: var(--cambridge-blue);
-          margin-bottom: 0.5rem;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-        }
-
-        .family-name {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 1.3rem;
-          color: var(--white);
-          font-weight: 600;
-        }
-
-        .footer-contact {
-          text-align: center;
-          margin-bottom: 3rem;
-        }
-
-        .contact-title {
+        .gift-title {
           font-family: 'Playfair Display', serif;
           font-size: 1.5rem;
           color: var(--gold);
           margin-bottom: 1.5rem;
         }
 
-        .contact-info {
+        .gift-description {
+          font-family: 'Raleway', Roboto;
+          font-size: 1rem;
+          color: var(--ash-gray);
+          margin-bottom: 2rem;
+          line-height: 1.6;
+          max-width: 500px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .gift-options {
           display: flex;
           justify-content: center;
           gap: 2rem;
           flex-wrap: wrap;
+          margin-bottom: 2rem;
         }
 
-        .contact-item {
-          display: flex;
-          align-items: center;
-          gap: 0.8rem;
-          padding: 1rem 1.5rem;
+        .gift-option {
           background: rgba(255, 255, 255, 0.1);
-          border-radius: 15px;
           backdrop-filter: blur(10px);
           border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 15px;
+          padding: 1rem;
+          text-align: center;
           transition: all 0.3s ease;
+          max-width: 300px;
+          flex: 1;
         }
 
-        .contact-item:hover {
+        .gift-option:hover {
           background: rgba(255, 255, 255, 0.15);
-          transform: translateY(-3px);
+          transform: translateY(-5px);
         }
 
-        .contact-icon {
-          width: 40px;
-          height: 40px;
+        .gift-icon {
+          width: 60px;
+          height: 60px;
           border-radius: 50%;
           background: linear-gradient(135deg, var(--hookers-green), var(--cambridge-blue));
           display: flex;
           align-items: center;
           justify-content: center;
+          margin: 0 auto 1rem;
           color: white;
+          font-size: 1.5rem;
+        }
+
+        .gift-option-title {
+          font-family: 'Playfair Display', serif;
           font-size: 1.2rem;
-        }
-
-        .contact-details {
-          text-align: left;
-        }
-
-        .contact-label {
-          font-family: 'Roboto', sans-serif;
-          font-size: 0.8rem;
-          color: var(--cambridge-blue);
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          margin-bottom: 0.2rem;
-        }
-
-        .contact-value {
-          font-family: 'Roboto', sans-serif;
-          font-size: 1rem;
           color: var(--white);
-          font-weight: 500;
+          margin-bottom: 1rem;
+          font-weight: 600;
+        }
+
+        .gift-details {
+          font-family: 'Raleway', Roboto;
+          font-size: 0.9rem;
+          color: var(--ash-gray);
+          line-height: 1.5;
+          margin-bottom: 1.5rem;
+        }
+
+        .gift-info {
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 10px;
+          padding: 1.5rem;
+          margin-top: 2rem;
+        }
+
+        .gift-note {
+          font-family: 'Raleway', Roboto;
+          font-size: 0.9rem;
+          color: var(--cambridge-blue);
+          font-style: italic;
+          line-height: 1.5;
         }
 
         .footer-bottom {
@@ -282,17 +201,10 @@ export class WeddingFooter {
         }
 
         .footer-copyright {
-          font-family: 'Roboto', sans-serif;
+          font-family: 'Raleway', Roboto;
           font-size: 0.9rem;
           color: var(--ash-gray);
           margin-bottom: 0.5rem;
-        }
-
-        .footer-made-with {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 1rem;
-          color: var(--cambridge-blue);
-          font-style: italic;
         }
 
         .heart-pulse {
@@ -307,88 +219,6 @@ export class WeddingFooter {
           }
           50% {
             transform: scale(1.3);
-          }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .wedding-footer {
-            padding: 3rem 0 1.5rem;
-          }
-
-          .footer-initials {
-            font-size: 3rem;
-          }
-
-          .footer-couple-name {
-            font-size: 1.7rem;
-          }
-
-          .footer-wedding-date {
-            font-size: 1.1rem;
-            letter-spacing: 2px;
-          }
-
-          .footer-quote {
-            font-size: 1.5rem;
-            margin: 2rem 0;
-          }
-
-          .family-names {
-            gap: 2rem;
-          }
-
-          .family-name {
-            font-size: 1.1rem;
-          }
-
-          .contact-info {
-            gap: 1rem;
-          }
-
-          .contact-item {
-            padding: 0.8rem 1.2rem;
-          }
-
-          .contact-icon {
-            width: 35px;
-            height: 35px;
-            font-size: 1rem;
-          }
-        }
-
-        @media (max-width: 576px) {
-          .footer-initials {
-            font-size: 2.5rem;
-          }
-
-          .footer-couple-name {
-            font-size: 1.5rem;
-          }
-
-          .footer-wedding-date {
-            font-size: 1rem;
-          }
-
-          .footer-quote {
-            font-size: 1.3rem;
-            padding: 0 1rem;
-          }
-
-          .family-names {
-            flex-direction: column;
-            gap: 1.5rem;
-          }
-
-          .contact-info {
-            flex-direction: column;
-            align-items: center;
-          }
-
-          .contact-item {
-            width: 100%;
-            max-width: 300px;
-            justify-content: flex-start;
           }
         }
       </style>
@@ -412,80 +242,56 @@ export class WeddingFooter {
             <br><small style="font-size: 1rem; margin-top: 1rem; display: block;">- QS. Ar-Rum: 21</small>
           </div>
 
-          <!-- Family Information -->
-          <div class="footer-family">
-            <h4 class="family-title">Keluarga Yang Berbahagia</h4>
-            <div class="family-names">
-              <div class="family-group">
-                <div class="family-role">Keluarga Mempelai Pria</div>
-                <div class="family-name">Bapak Husen & Ibu Yuliawati</div>
-              </div>
-              <div class="family-group">
-                <div class="family-role">Keluarga Mempelai Wanita</div>
-                <div class="family-name">Bapak Apet & Ibu Dewi</div>
-              </div>
-            </div>
-          </div>
+          <!-- Gift Information -->
+          <div class="gift-section">
+            <h4 class="gift-title">Kirim Hadiah</h4>
+            <p class="gift-description">
+              Kehadiran dan doa Anda sudah merupakan hadiah terindah bagi kami. 
+              Namun jika Anda ingin memberikan tanda kasih, berikut informasi yang dapat digunakan:
+            </p>
 
-          <!-- Contact Information -->
-          <div class="footer-contact">
-            <h4 class="contact-title">Untuk Informasi Lebih Lanjut</h4>
-            <div class="contact-info">
-              <div class="contact-item">
-                <div class="contact-icon">
-                  <i class="bi bi-telephone"></i>
+            <div class="gift-options">
+              <div class="gift-option">
+                <div class="gift-icon">
+                  <i class="bi bi-wallet2"></i>
                 </div>
-                <div class="contact-details">
-                  <div class="contact-label">Telepon</div>
-                  <div class="contact-value">+62 812-3456-7890</div>
-                </div>
-              </div>
-              <div class="contact-item">
-                <div class="contact-icon">
-                  <i class="bi bi-whatsapp"></i>
-                </div>
-                <div class="contact-details">
-                  <div class="contact-label">WhatsApp</div>
-                  <div class="contact-value">+62 838-2925-8640</div>
+                <h5 class="gift-option-title">Transfer Bank</h5>
+                <div class="gift-details">
+                  <strong>Bank Mandiri</strong><br>
+                  132 0014 594 320<br>
+                  Gifary Setia Putra
                 </div>
               </div>
-              <div class="contact-item">
-                <div class="contact-icon">
-                  <i class="bi bi-envelope"></i>
+
+              <div class="gift-option">
+                <div class="gift-icon">
+                  <i class="bi bi-phone"></i>
                 </div>
-                <div class="contact-details">
-                  <div class="contact-label">Email</div>
-                  <div class="contact-value">gifarysetia10@gmail.com</div>
+                <h5 class="gift-option-title">E-Wallet</h5>
+                <div class="gift-details">
+                  <strong>DANA</strong><br>
+                  0878 2872 0834<br>
+                  Sindy Novia
                 </div>
-              </div>
+              </div>              
+            </div>
+
+            <div class="gift-info">
+              <p class="gift-note">
+                * Untuk konfirmasi transfer atau informasi lebih lanjut, silakan hubungi keluarga mempelai. 
+                Terima kasih atas perhatian dan kasih sayangnya.
+              </p>
             </div>
           </div>
 
           <!-- Footer Bottom -->
           <div class="footer-bottom">
             <p class="footer-copyright">
-              © 2026 The Wedding Invitation Created By Gifary Setia Putra
-            </p>
-            <p class="footer-made-with">
-              Made with <span class="heart-pulse">❤</span> for our special day
+              © 2026 Wedding Invitation Created By Gifary
             </p>
           </div>
         </div>
       </footer>
     `;
-  }
-
-  createFloatingHearts() {
-    const heartsContainer = document.getElementById('footerHearts');
-    if (!heartsContainer) return;
-
-    for (let i = 0; i < 12; i++) {
-      const heart = document.createElement('div');
-      heart.className = 'footer-heart';
-      heart.innerHTML = '❤';
-      heart.style.left = `${Math.random() * 100}%`;
-      heart.style.animationDelay = `${Math.random() * 8}s`;
-      heartsContainer.appendChild(heart);
-    }
   }
 }
