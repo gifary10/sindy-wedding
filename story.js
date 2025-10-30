@@ -3,7 +3,6 @@ export class WeddingStory {
     this.scrollReveal = scrollReveal;
     this.storyData = [
       {
-        year: "2018",
         title: "Awal Cerita",
         descriptionGroom: "Kami sempat dekat dan saling jatuh cinta. Tapi waktu berkata lain — hubungan itu harus berakhir, dan kami memilih jalan masing-masing.",
         descriptionBride: "Aku masih ingat masa itu, masa muda yang penuh tawa dan rasa penasaran. Kami sempat bersama, tapi takdir membawa kami menjauh dengan cara yang lembut.",
@@ -11,7 +10,6 @@ export class WeddingStory {
         type: "meet"
       },
       {
-        year: "2019 - 2024",
         title: "Berjalan di Jalannya Masing-Masing",
         descriptionGroom: "Setelah perpisahan itu, aku mencoba fokus membangun hidup. Kadang terlintas kenangan, tapi aku biarkan waktu menyembuhkan.",
         descriptionBride: "Aku menikah, membangun keluarga, dan dikaruniai seorang putri yang manis. Enam tahun berlalu, penuh cerita, hingga akhirnya aku harus kembali berjalan sendiri.",
@@ -19,7 +17,6 @@ export class WeddingStory {
         type: "separate"
       },
       {
-        year: "2024",
         title: "Pesan yang Tak Disangka",
         descriptionGroom: "Aku mengunggah foto di Instagram, mataku sedang luka. Tak pernah kuduga, pesan darinya masuk — menanyakan kabar. Dari satu pesan itu, percakapan panjang pun dimulai.",
         descriptionBride: "Aku melihat unggahannya, matanya tampak terluka. Tanpa pikir panjang, aku kirim pesan. Awalnya hanya basa-basi, tapi ternyata percakapan itu membuka banyak kenangan lama.",
@@ -27,7 +24,6 @@ export class WeddingStory {
         type: "reconnect"
       },
       {
-        year: "2025",
         title: "Takdir Mempertemukan Lagi",
         descriptionGroom: "Dari obrolan itu aku tahu ia sudah berpisah. Ada perasaan yang pelan-pelan tumbuh lagi — hangat, tapi kali ini lebih matang. Rasanya seperti diberi kesempatan kedua.",
         descriptionBride: "Setelah sekian lama, kami kembali bicara dari hati ke hati. Rasanya berbeda, lebih tenang, lebih dewasa. Seperti takdir ingin kami menulis bab baru bersama.",
@@ -35,7 +31,6 @@ export class WeddingStory {
         type: "reunion"
       },
       {
-        year: "2025",
         title: "Keyakinan yang Sama",
         descriptionGroom: "Kini aku yakin — perasaan ini bukan sekadar nostalgia. Aku ingin menjaganya, membangun rumah yang dulu sempat tertunda.",
         descriptionBride: "Aku pun yakin, kali ini bukan tentang kembali ke masa lalu. Ini tentang melangkah bersama, dengan hati yang sudah sama-sama belajar banyak.",
@@ -50,6 +45,7 @@ export class WeddingStory {
     this.createStorySection();
     setTimeout(() => {
       this.initScrollReveal();
+      this.setupImageLoading();
     }, 100);
   }
 
@@ -58,8 +54,8 @@ export class WeddingStory {
 
     const section = document.createElement('section');
     section.id = 'story';
-    section.className = 'py-5';
-    section.style.background = 'linear-gradient(135deg, var(--ash-gray) 0%, var(--white) 100%)';
+    section.className = 'py-1';
+    section.style.background = 'linear-gradient(160deg, #2f3e46 0%, #52796f 50%, #84a98c 100%)';
     section.innerHTML = this.getStoryHTML();
 
     const content = document.getElementById('content');
@@ -112,7 +108,6 @@ export class WeddingStory {
         .story-item-content {
           position: relative;
           width: calc(50% - 4rem);
-          padding: 2.5rem;
           background: rgba(255, 255, 255, 0.95);
           border-radius: 25px;
           box-shadow: 
@@ -121,6 +116,8 @@ export class WeddingStory {
           backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.3);
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          overflow: hidden;
+          min-height: 500px;
         }
 
         .story-item:hover .story-item-content {
@@ -153,56 +150,46 @@ export class WeddingStory {
           transform: translateY(-50%);
         }
 
-        .story-year {
-          position: absolute;
-          top: -30px;
-          font-family: 'Playfair Display', serif;
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: var(--dark-slate-gray);
-          background: linear-gradient(135deg, var(--hookers-green), var(--cambridge-blue));
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .story-item:nth-child(odd) .story-year {
-          right: calc(50% + 3rem);
-        }
-
-        .story-item:nth-child(even) .story-year {
-          left: calc(50% + 3rem);
-        }
-
         .story-image-container {
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
+          position: relative;
+          width: 100%;
+          height: 50%;
+          min-height: 250px;
           overflow: hidden;
-          margin: 0 auto 1.5rem;
-          box-shadow: 
-            0 10px 30px rgba(0, 0, 0, 0.15),
-            0 5px 15px rgba(82, 121, 111, 0.3);
-          border: 4px solid white;
+          background: var(--ash-gray);
           transition: all 0.4s ease;
-        }
-
-        .story-item:hover .story-image-container {
-          transform: scale(1.1);
-          box-shadow: 
-            0 15px 40px rgba(0, 0, 0, 0.2),
-            0 8px 25px rgba(82, 121, 111, 0.4);
         }
 
         .story-image {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          transition: transform 0.6s ease;
+          transition: transform 0.4s ease;
         }
 
         .story-item:hover .story-image {
-          transform: scale(1.15);
+          transform: scale(1.02);
+        }
+
+        .story-image-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            to bottom,
+            rgba(0, 0, 0, 0.2) 0%,
+            rgba(0, 0, 0, 0.1) 100%
+          );
+        }
+
+        .story-content {
+          padding: 2.5rem;
+          height: 50%;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
         }
 
         .story-title {
@@ -276,7 +263,7 @@ export class WeddingStory {
 
         .description-text {
           color: var(--charcoal);
-          font-family: 'Roboto', sans-serif;
+          font-family: 'Raleway', Roboto;
           line-height: 1.7;
           text-align: center;
           opacity: 0.9;
@@ -286,7 +273,7 @@ export class WeddingStory {
 
         .story-type-badge {
           position: absolute;
-          top: -15px;
+          top: 15px;
           right: 20px;
           background: linear-gradient(135deg, var(--hookers-green), var(--cambridge-blue));
           color: white;
@@ -297,6 +284,21 @@ export class WeddingStory {
           text-transform: uppercase;
           letter-spacing: 1px;
           box-shadow: 0 5px 15px rgba(82, 121, 111, 0.3);
+          z-index: 2;
+        }
+
+        .image-loading {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--ash-gray);
+          color: var(--dark-slate-gray);
+          font-family: 'Raleway', Roboto;
+        }
+
+        .image-loading::after {
+          content: 'Memuat gambar...';
+          font-size: 0.9rem;
         }
 
         /* Responsive Design */
@@ -320,11 +322,6 @@ export class WeddingStory {
             right: auto !important;
           }
 
-          .story-year {
-            left: 80px !important;
-            right: auto !important;
-          }
-
           .story-descriptions {
             grid-template-columns: 1fr;
             gap: 1rem;
@@ -332,21 +329,16 @@ export class WeddingStory {
         }
 
         @media (max-width: 768px) {
-          .story-item-content {
+          .story-content {
             padding: 2rem 1.5rem;
           }
 
           .story-image-container {
-            width: 100px;
-            height: 100px;
+            min-height: 200px;
           }
 
           .story-title {
             font-size: 1.5rem;
-          }
-
-          .story-year {
-            font-size: 1.3rem;
           }
 
           .description-column {
@@ -373,21 +365,19 @@ export class WeddingStory {
           }
 
           .story-item-content {
+            min-height: 450px;
+          }
+
+          .story-content {
             padding: 1.5rem 1rem;
           }
 
           .story-image-container {
-            width: 80px;
-            height: 80px;
+            min-height: 180px;
           }
 
           .story-title {
             font-size: 1.3rem;
-          }
-
-          .story-year {
-            font-size: 1.1rem;
-            left: 70px !important;
           }
 
           .story-type-badge {
@@ -412,12 +402,9 @@ export class WeddingStory {
 
       <section class="story-section">
         <div class="container">
-          <h2 class="section-title">Our Love Story</h2>
-          <p class="text-center text-muted mb-5" style="font-size: 1rem; font-family: 'Roboto', sans-serif;">
-  “Tak ada yang kebetulan dalam perjalanan ini. Setiap pertemuan, jarak, dan waktu yang memisahkan hanyalah cara Tuhan mempersiapkan hati kami untuk bersatu di waktu terbaik-Nya.”
-</p>
-
-
+          <h2 class="section-title" style="color: #d0d4d4ff;">
+  Our Love Story
+</h2>
           <div class="story-timeline">
             ${this.storyData.map((story, index) => this.getStoryItemHTML(story, index)).join('')}
           </div>
@@ -437,26 +424,51 @@ export class WeddingStory {
 
     return `
       <div class="story-item reveal-item">
-        <div class="story-year">${story.year}</div>
         <div class="story-item-content">
           <div class="story-type-badge">${typeLabels[story.type]}</div>
           <div class="story-image-container">
-            <img src="${story.image}" alt="${story.title}" class="story-image">
+            <img src="${story.image}" 
+                 alt="${story.title}" 
+                 class="story-image" 
+                 loading="lazy"
+                 onerror="this.style.display='none'; this.parentElement.classList.add('image-loading');">
+            <div class="story-image-overlay"></div>
           </div>
-          <h3 class="story-title">${story.title}</h3>
-          <div class="story-descriptions">
-            <div class="description-column">
-              <h4 class="description-title">Gifary</h4>
-              <p class="description-text">${story.descriptionGroom}</p>
-            </div>
-            <div class="description-column">
-              <h4 class="description-title">Sindy</h4>
-              <p class="description-text">${story.descriptionBride}</p>
+          <div class="story-content">
+            <h3 class="story-title">${story.title}</h3>
+            <div class="story-descriptions">
+              <div class="description-column">
+                <h4 class="description-title">Gifary</h4>
+                <p class="description-text">${story.descriptionGroom}</p>
+              </div>
+              <div class="description-column">
+                <h4 class="description-title">Sindy</h4>
+                <p class="description-text">${story.descriptionBride}</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     `;
+  }
+
+  setupImageLoading() {
+    // Handle image loading with Intersection Observer for better performance
+    const images = document.querySelectorAll('.story-image');
+    
+    if ('IntersectionObserver' in window) {
+      const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            img.src = img.getAttribute('src');
+            imageObserver.unobserve(img);
+          }
+        });
+      });
+
+      images.forEach(img => imageObserver.observe(img));
+    }
   }
 
   initScrollReveal() {
@@ -468,9 +480,18 @@ export class WeddingStory {
           distance: '50px',
           easing: 'cubic-bezier(0.5, 0, 0, 1)',
           origin: 'bottom',
-          cleanup: true
+          cleanup: true,
+          mobile: true
         });
       });
+    }
+  }
+
+  // Method untuk cleanup jika diperlukan
+  destroy() {
+    const section = document.getElementById('story');
+    if (section) {
+      section.remove();
     }
   }
 }
