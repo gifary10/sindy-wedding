@@ -2,32 +2,31 @@ export class WeddingDetails {
   constructor(scrollReveal) {
     this.scrollReveal = scrollReveal;
     this.detailsData = {
-      akad: {
-        title: "Akad Nikah",
-        date: "Sabtu, 27 Juni 2026",
-        time: "08:00 - 10:00 WIB",
-        location: "Pondok D'Queen Warung Pulus Batujajar",
-        address: "Jl. Warung Pulus, Batujajar Bar., Kec. Batujajar, Kabupaten Bandung Barat, Jawa Barat 40561",
-        mapUrl: "https://maps.app.goo.gl/mUEnkaq3g92xXtV26",
-        description: "Prosesi akad nikah akan dilaksanakan di Pondok D'Queen Warung Pulus Batujajar dengan dihadiri oleh keluarga dan kerabat dekat."
-      },
-      resepsi: {
-        title: "Resepsi Pernikahan",
-        date: "Sabtu, 27 Juni 2026",
-        time: "11:00 - 15:00 WIB",
-        location: "Pondok D'Queen Warung Pulus Batujajar",
-        address: "Jl. Warung Pulus, Batujajar Bar., Kec. Batujajar, Kabupaten Bandung Barat, Jawa Barat 40561",
-        mapUrl: "https://maps.app.goo.gl/mUEnkaq3g92xXtV26",
-        description: "Resepsi pernikahan akan dilanjutkan di Pondok D'Queen Warung Pulus Batujajar. Kami menantikan kehadiran Bapak/Ibu/Saudara/i."
-      }
+      location: "Pondok D'Queen Warung Pulus Batujajar",
+      address: "Jl. Warung Pulus, Batujajar Bar., Kec. Batujajar, Kabupaten Bandung Barat, Jawa Barat 40561",
+      mapUrl: "https://maps.app.goo.gl/mUEnkaq3g92xXtV26",
+      events: [
+        {
+          title: "Akad Nikah",
+          date: "Sabtu, 27 Juni 2026",
+          time: "08:00 - 10:00 WIB",
+          description: "Gunakan dress code nuansa putih atau krem, melambangkan kesucian dan ketulusan dalam prosesi akad nikah yang dihadiri oleh keluarga dan kerabat dekat.",
+          icon: "bi-heart-fill"
+        },
+        {
+          title: "Resepsi Pernikahan",
+          date: "Sabtu, 27 Juni 2026", 
+          time: "11:00 - 15:00 WIB",
+          description: "Gunakan dress code nuansa sage, menghadirkan kesan tenang, elegan, dan harmonis pada acara resepsi. Kami menantikan kehadiran Bapak/Ibu/Saudara/i.",
+          icon: "bi-people-fill"
+        }
+      ]
     };
-    this.countdownDate = new Date('June 27, 2026 08:00:00').getTime();
     this.init();
   }
 
   init() {
     this.createDetailsSection();
-    this.startCountdown();
     setTimeout(() => {
       this.initScrollReveal();
     }, 100);
@@ -38,7 +37,7 @@ export class WeddingDetails {
 
     const section = document.createElement('section');
     section.id = 'details';
-    section.className = 'py-5';
+    section.className = 'py-1';
     section.style.background = 'linear-gradient(135deg, var(--white) 0%, var(--ash-gray) 100%)';
     section.innerHTML = this.getDetailsHTML();
 
@@ -54,74 +53,10 @@ export class WeddingDetails {
           overflow: hidden;
         }
 
-        .countdown-container {
-          background: linear-gradient(135deg, var(--hookers-green), var(--dark-slate-gray));
-          border-radius: 25px;
-          padding: 3rem 2rem;
-          margin-bottom: 4rem;
-          box-shadow: 
-            0 20px 60px rgba(82, 121, 111, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2);
-          position: relative;
-          overflow: hidden;
-        }
-
-        .countdown-container::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-          opacity: 0.1;
-        }
-
-        .countdown-title {
-          font-family: 'Playfair Display', serif;
-          color: white;
-          font-size: 2.2rem;
-          font-weight: 700;
-          margin-bottom: 2rem;
-          text-align: center;
-          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .countdown-timer {
-          display: flex;
-          justify-content: center;
-          gap: 2rem;
-          flex-wrap: wrap;
-        }
-
-        .countdown-item {
-          text-align: center;
-          min-width: 100px;
-        }
-
-        .countdown-number {
-          font-family: 'Playfair Display', serif;
-          font-size: 3rem;
-          font-weight: 700;
-          color: var(--gold);
-          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-          line-height: 1;
-          margin-bottom: 0.5rem;
-        }
-
-        .countdown-label {
-          font-family: 'Roboto', sans-serif;
-          font-size: 0.9rem;
-          color: rgba(255, 255, 255, 0.9);
-          text-transform: uppercase;
-          letter-spacing: 2px;
-          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
         .event-card {
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 25px;
-          padding: 3rem 2.5rem;
+          background: rgba(255, 255, 255, 0.8);
+          border-radius: 15px;
+          padding: 1rem 1rem;
           box-shadow: 
             0 20px 60px rgba(82, 121, 111, 0.15),
             inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -149,6 +84,11 @@ export class WeddingDetails {
           box-shadow: 
             0 30px 80px rgba(82, 121, 111, 0.25),
             inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .event-header {
+          text-align: center;
+          margin-bottom: 3rem;
         }
 
         .event-icon {
@@ -181,7 +121,7 @@ export class WeddingDetails {
         .event-title {
           font-family: 'Playfair Display', serif;
           color: var(--dark-slate-gray);
-          font-size: 2rem;
+          font-size: 1.8rem;
           font-weight: 700;
           margin-bottom: 1.5rem;
           text-align: center;
@@ -198,6 +138,62 @@ export class WeddingDetails {
           height: 3px;
           background: linear-gradient(to right, var(--hookers-green), var(--cambridge-blue));
           border-radius: 2px;
+        }
+
+        .events-timeline {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 3rem;
+          position: relative;
+        }
+
+        .events-timeline::before {
+          content: '';
+          position: absolute;
+          top: 40px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 80%;
+          height: 2px;
+          background: linear-gradient(90deg, var(--hookers-green), var(--cambridge-blue));
+          border-radius: 1px;
+        }
+
+        .event-timeline-item {
+          text-align: center;
+          flex: 1;
+          position: relative;
+        }
+
+        .event-timeline-item::before {
+          content: '';
+          position: absolute;
+          top: 35px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, var(--hookers-green), var(--cambridge-blue));
+          border: 3px solid white;
+          box-shadow: 0 3px 10px rgba(82, 121, 111, 0.3);
+          z-index: 2;
+        }
+
+        .event-time {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: var(--hookers-green);
+          margin-bottom: 2rem;
+        }
+
+        .event-label {
+          font-family: 'Playfair Display', serif;
+          font-size: 1rem;
+          color: var(--dark-slate-gray);
+          font-weight: 600;
         }
 
         .event-info {
@@ -241,7 +237,7 @@ export class WeddingDetails {
         }
 
         .info-label {
-          font-family: 'Roboto', sans-serif;
+          font-family: 'Raleway', Roboto;
           font-size: 0.9rem;
           color: var(--hookers-green);
           font-weight: 600;
@@ -251,7 +247,7 @@ export class WeddingDetails {
         }
 
         .info-value {
-          font-family: 'Roboto', sans-serif;
+          font-family: 'Raleway', Roboto;
           color: var(--charcoal);
           font-size: 1rem;
           font-weight: 500;
@@ -260,7 +256,7 @@ export class WeddingDetails {
 
         .event-description {
           color: var(--charcoal);
-          font-family: 'Roboto', sans-serif;
+          font-family: 'Raleway', Roboto;
           line-height: 1.7;
           text-align: center;
           opacity: 0.9;
@@ -291,152 +287,36 @@ export class WeddingDetails {
           color: white;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .countdown-container {
-            padding: 2rem 1.5rem;
-            margin-bottom: 3rem;
-          }
-
-          .countdown-title {
-            font-size: 1.8rem;
-          }
-
-          .countdown-timer {
-            gap: 1.5rem;
-          }
-
-          .countdown-item {
-            min-width: 80px;
-          }
-
-          .countdown-number {
-            font-size: 2.5rem;
-          }
-
-          .event-card {
-            padding: 2.5rem 2rem;
-            margin-bottom: 2rem;
-          }
-
-          .event-icon {
-            width: 70px;
-            height: 70px;
-            margin-bottom: 1.5rem;
-          }
-
-          .event-icon i {
-            font-size: 1.8rem;
-          }
-
-          .event-title {
-            font-size: 1.7rem;
-          }
-        }
-
-        @media (max-width: 576px) {
-          .countdown-container {
-            padding: 1.5rem 1rem;
-          }
-
-          .countdown-title {
-            font-size: 1.5rem;
-          }
-
-          .countdown-timer {
-            gap: 1rem;
-          }
-
-          .countdown-item {
-            min-width: 70px;
-          }
-
-          .countdown-number {
-            font-size: 2rem;
-          }
-
-          .countdown-label {
-            font-size: 0.8rem;
-          }
-
-          .event-card {
-            padding: 2rem 1.5rem;
-          }
-
-          .event-icon {
-            width: 60px;
-            height: 60px;
-          }
-
-          .event-icon i {
-            font-size: 1.5rem;
-          }
-
-          .event-title {
-            font-size: 1.5rem;
-          }
-
-          .info-item {
-            padding: 0.8rem;
-          }
-
-          .info-icon {
-            width: 35px;
-            height: 35px;
-            margin-right: 0.8rem;
-          }
-
-          .info-icon i {
-            font-size: 1rem;
-          }
-
-          .btn-map {
-            padding: 0.9rem 1.8rem;
-            min-width: 180px;
-          }
-        }
       </style>
 
       <section class="details-section">
         <div class="container">
           <h2 class="section-title">Detail Acara</h2>
-          <p class="text-center text-muted mb-5" style="font-size: 1.1rem; font-family: 'Roboto', sans-serif;">
+          <p class="text-center text-muted mb-5" style="font-size: 1.1rem; font-family: 'Raleway', Roboto;">
            Dengan penuh syukur dan kerendahan hati, kami berharap kehadiran Bapak/Ibu/Saudara/i untuk menyaksikan awal perjalanan baru kami dalam ikatan pernikahan.
           </p>
 
-          <!-- Countdown Timer -->
-          <div class="countdown-container reveal-item">
-            <h3 class="countdown-title">Menuju Hari Bahagia</h3>
-            <div class="countdown-timer" id="countdownTimer">
-              <div class="countdown-item">
-                <div class="countdown-number" id="days">00</div>
-                <div class="countdown-label">Hari</div>
-              </div>
-              <div class="countdown-item">
-                <div class="countdown-number" id="hours">00</div>
-                <div class="countdown-label">Jam</div>
-              </div>
-              <div class="countdown-item">
-                <div class="countdown-number" id="minutes">00</div>
-                <div class="countdown-label">Menit</div>
-              </div>
-              <div class="countdown-item">
-                <div class="countdown-number" id="seconds">00</div>
-                <div class="countdown-label">Detik</div>
-              </div>
-            </div>
-          </div>
-
           <div class="row justify-content-center">
-            <!-- Akad Nikah -->
-            <div class="col-lg-5 col-md-6 mb-4">
+            <!-- Single Combined Event Card -->
+            <div class="col-lg-8 col-md-10 mb-4">
               <div class="event-card reveal-item">
-                <div class="event-icon">
-                  <i class="bi bi-heart-fill"></i>
+                <div class="event-header">
+                  <div class="event-icon">
+                    <i class="bi bi-calendar-heart"></i>
+                  </div>
+                  <h3 class="event-title">Akad Nikah & Resepsi</h3>
                 </div>
                 
-                <h3 class="event-title">${this.detailsData.akad.title}</h3>
-                
+                <!-- Events Timeline -->
+                <div class="events-timeline">
+                  ${this.detailsData.events.map((event, index) => `
+                    <div class="event-timeline-item">
+                      <div class="event-time">${event.time}</div>
+                      <div class="event-label">${event.title}</div>
+                    </div>
+                  `).join('')}
+                </div>
+
                 <div class="event-info">
                   <div class="info-item">
                     <div class="info-icon">
@@ -444,17 +324,7 @@ export class WeddingDetails {
                     </div>
                     <div class="info-content">
                       <div class="info-label">Tanggal</div>
-                      <div class="info-value">${this.detailsData.akad.date}</div>
-                    </div>
-                  </div>
-                  
-                  <div class="info-item">
-                    <div class="info-icon">
-                      <i class="bi bi-clock"></i>
-                    </div>
-                    <div class="info-content">
-                      <div class="info-label">Waktu</div>
-                      <div class="info-value">${this.detailsData.akad.time}</div>
+                      <div class="info-value">${this.detailsData.events[0].date}</div>
                     </div>
                   </div>
                   
@@ -464,7 +334,7 @@ export class WeddingDetails {
                     </div>
                     <div class="info-content">
                       <div class="info-label">Lokasi</div>
-                      <div class="info-value">${this.detailsData.akad.location}</div>
+                      <div class="info-value">${this.detailsData.location}</div>
                     </div>
                   </div>
                   
@@ -474,76 +344,21 @@ export class WeddingDetails {
                     </div>
                     <div class="info-content">
                       <div class="info-label">Alamat</div>
-                      <div class="info-value">${this.detailsData.akad.address}</div>
+                      <div class="info-value">${this.detailsData.address}</div>
                     </div>
                   </div>
                 </div>
 
-                <p class="event-description">${this.detailsData.akad.description}</p>
+                <div class="event-descriptions">
+                  ${this.detailsData.events.map(event => `
+                    <div class="event-description">
+                      <strong>${event.title}:</strong> ${event.description}
+                    </div>
+                  `).join('')}
+                </div>
                 
                 <div class="text-center">
-                  <a href="${this.detailsData.akad.mapUrl}" class="btn btn-map" target="_blank">
-                    <i class="bi bi-map"></i> Lihat di Peta
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Resepsi -->
-            <div class="col-lg-5 col-md-6 mb-4">
-              <div class="event-card reveal-item">
-                <div class="event-icon">
-                  <i class="bi bi-people-fill"></i>
-                </div>
-                
-                <h3 class="event-title">${this.detailsData.resepsi.title}</h3>
-                
-                <div class="event-info">
-                  <div class="info-item">
-                    <div class="info-icon">
-                      <i class="bi bi-calendar"></i>
-                    </div>
-                    <div class="info-content">
-                      <div class="info-label">Tanggal</div>
-                      <div class="info-value">${this.detailsData.resepsi.date}</div>
-                    </div>
-                  </div>
-                  
-                  <div class="info-item">
-                    <div class="info-icon">
-                      <i class="bi bi-clock"></i>
-                    </div>
-                    <div class="info-content">
-                      <div class="info-label">Waktu</div>
-                      <div class="info-value">${this.detailsData.resepsi.time}</div>
-                    </div>
-                  </div>
-                  
-                  <div class="info-item">
-                    <div class="info-icon">
-                      <i class="bi bi-geo-alt"></i>
-                    </div>
-                    <div class="info-content">
-                      <div class="info-label">Lokasi</div>
-                      <div class="info-value">${this.detailsData.resepsi.location}</div>
-                    </div>
-                  </div>
-                  
-                  <div class="info-item">
-                    <div class="info-icon">
-                      <i class="bi bi-pin-map"></i>
-                    </div>
-                    <div class="info-content">
-                      <div class="info-label">Alamat</div>
-                      <div class="info-value">${this.detailsData.resepsi.address}</div>
-                    </div>
-                  </div>
-                </div>
-
-                <p class="event-description">${this.detailsData.resepsi.description}</p>
-                
-                <div class="text-center">
-                  <a href="${this.detailsData.resepsi.mapUrl}" class="btn btn-map" target="_blank">
+                  <a href="${this.detailsData.mapUrl}" class="btn btn-map" target="_blank">
                     <i class="bi bi-map"></i> Lihat di Peta
                   </a>
                 </div>
@@ -553,31 +368,6 @@ export class WeddingDetails {
         </div>
       </section>
     `;
-  }
-
-  startCountdown() {
-    const updateCountdown = () => {
-      const now = new Date().getTime();
-      const distance = this.countdownDate - now;
-
-      if (distance < 0) {
-        document.getElementById('countdownTimer').innerHTML = '<div class="text-white text-center w-100"><h4>Acara Sudah Berlangsung!</h4></div>';
-        return;
-      }
-
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      document.getElementById('days').textContent = days.toString().padStart(2, '0');
-      document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-      document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-      document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-    };
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
   }
 
   initScrollReveal() {
