@@ -5,7 +5,8 @@ export class WeddingNavigation {
       { icon: 'bi-heart', label: 'Mempelai', target: 'couple' },
       { icon: 'bi-journal-text', label: 'Story', target: 'story' },
       { icon: 'bi-calendar', label: 'Acara', target: 'details' },
-      { icon: 'bi-images', label: 'Galeri', target: 'gallery' }
+      { icon: 'bi-images', label: 'Galeri', target: 'gallery' },
+      { icon: 'bi-chat-heart', label: 'Ucapan', target: 'dataDisplay' }
     ];
     this.activeItem = 'header';
     this.audio = null;
@@ -19,6 +20,7 @@ export class WeddingNavigation {
     this.setupNavigationEvents();
     this.setupScrollObserver();
     this.initAudio();
+    this.setupAutoPlay();
   }
 
   createNavigation() {
@@ -33,7 +35,7 @@ export class WeddingNavigation {
           top: 20px;
           left: 50%;
           transform: translateX(-50%);
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(0, 0, 0, 0.35);
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
           border-radius: 25px;
@@ -132,20 +134,43 @@ export class WeddingNavigation {
           transform: scale(1.15);
         }
 
-        /* Music Toggle Button */
+        /* Music Toggle Button - Bottom Position */
+        .music-toggle-container {
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          z-index: 1000;
+        }
+
         .music-toggle {
           position: relative;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 14px;
-          border-radius: 20px;
+          padding: 16px;
+          border-radius: 50%;
           cursor: pointer;
-          min-width: 60px;
-          height: 60px;
-          background: transparent;
-          border: none;
-          transition: all 0.3s ease;
+          width: 70px;
+          height: 70px;
+          background: rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 
+            0 10px 40px rgba(47, 62, 70, 0.15),
+            0 4px 15px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .music-toggle:hover {
+          background: rgba(255, 255, 255, 0.25);
+          border-color: rgba(255, 255, 255, 0.3);
+          box-shadow: 
+            0 15px 50px rgba(47, 62, 70, 0.25),
+            0 6px 20px rgba(0, 0, 0, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.4);
+          transform: translateY(-3px) scale(1.05);
         }
 
         .music-toggle::before {
@@ -155,27 +180,28 @@ export class WeddingNavigation {
           left: 0;
           right: 0;
           bottom: 0;
-          border-radius: 20px;
-          background: linear-gradient(135deg, var(--gold), var(--dark-slate-gray));
+          border-radius: 50%;
+          background: linear-gradient(135deg, var(--gold), var(--cambridge-blue));
           opacity: 0;
           transition: all 0.3s ease;
           z-index: -1;
         }
 
         .music-toggle.active::before {
-          opacity: 0.8;
-        }
-
-        .music-toggle:hover::before {
-          opacity: 0.3;
-        }
-
-        .music-toggle.active:hover::before {
           opacity: 0.9;
         }
 
+        .music-toggle:hover::before {
+          opacity: 0.4;
+        }
+
+        .music-toggle.active:hover::before {
+          opacity: 1;
+        }
+
         .music-toggle .nav-icon {
-          color: rgba(255, 255, 255, 0.9);
+          color: rgba(255, 255, 255, 0.95);
+          font-size: 1.5rem;
         }
 
         .music-toggle.active .nav-icon {
@@ -188,6 +214,37 @@ export class WeddingNavigation {
           transform: scale(1.05);
         }
 
+        .music-toggle.active:hover .nav-icon {
+          color: white;
+          transform: scale(1.15);
+        }
+
+        /* Pulsing animation for active music */
+        .music-toggle.active {
+          animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+          0% {
+            box-shadow: 
+              0 10px 40px rgba(47, 62, 70, 0.15),
+              0 4px 15px rgba(0, 0, 0, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.3);
+          }
+          50% {
+            box-shadow: 
+              0 10px 40px rgba(47, 62, 70, 0.25),
+              0 4px 15px rgba(212, 175, 55, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.4);
+          }
+          100% {
+            box-shadow: 
+              0 10px 40px rgba(47, 62, 70, 0.15),
+              0 4px 15px rgba(0, 0, 0, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.3);
+          }
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
           .bottom-nav {
@@ -197,7 +254,26 @@ export class WeddingNavigation {
             background: rgba(255, 255, 255, 0.2);
           }
 
-          .nav-item, .music-toggle {
+          .music-toggle-container {
+            bottom: 25px;
+            right: 25px;
+          }
+
+          .music-toggle {
+            width: 65px;
+            height: 65px;
+            padding: 14px;
+          }
+
+          .music-toggle .nav-icon {
+            font-size: 1.4rem;
+          }
+
+          .nav-container {
+            gap: 6px;
+          }
+
+          .nav-item {
             padding: 12px 16px;
             min-width: 55px;
             height: 55px;
@@ -213,14 +289,29 @@ export class WeddingNavigation {
             top: 12px;
             padding: 8px;
             border-radius: 20px;
-            background: rgba(255, 255, 255, 0.25);
+            background: rgba(0, 0, 0, 0.35);
+          }
+
+          .music-toggle-container {
+            bottom: 20px;
+            right: 20px;
+          }
+
+          .music-toggle {
+            width: 60px;
+            height: 60px;
+            padding: 12px;
+          }
+
+          .music-toggle .nav-icon {
+            font-size: 1.3rem;
           }
 
           .nav-container {
-            gap: 6px;
+            gap: 5px;
           }
 
-          .nav-item, .music-toggle {
+          .nav-item {
             padding: 10px 14px;
             min-width: 50px;
             height: 50px;
@@ -232,14 +323,57 @@ export class WeddingNavigation {
         }
 
         @media (max-width: 400px) {
-          .nav-item, .music-toggle {
+          .nav-item {
             padding: 8px 12px;
             min-width: 45px;
             height: 45px;
           }
 
+          .music-toggle {
+            width: 55px;
+            height: 55px;
+            padding: 10px;
+          }
+
+          .music-toggle .nav-icon {
+            font-size: 1.2rem;
+          }
+
           .nav-icon {
             font-size: 1rem;
+          }
+        }
+
+        /* Landscape mode adjustments */
+        @media (max-height: 500px) and (orientation: landscape) {
+          .bottom-nav {
+            top: 10px;
+            padding: 6px;
+          }
+
+          .music-toggle-container {
+            bottom: 15px;
+            right: 15px;
+          }
+
+          .music-toggle {
+            width: 50px;
+            height: 50px;
+            padding: 8px;
+          }
+
+          .music-toggle .nav-icon {
+            font-size: 1.1rem;
+          }
+
+          .nav-item {
+            padding: 8px 10px;
+            min-width: 40px;
+            height: 40px;
+          }
+
+          .nav-icon {
+            font-size: 0.9rem;
           }
         }
       </style>
@@ -250,17 +384,21 @@ export class WeddingNavigation {
             .map(
               (item) => `
               <button class="nav-item ${item.target === this.activeItem ? 'active' : ''}" 
-                      data-target="${item.target}">
+                      data-target="${item.target}"
+                      aria-label="${item.label}">
                 <i class="${item.icon} nav-icon"></i>
               </button>
             `
             )
             .join('')}
-          <!-- Music Toggle Button -->
-          <button class="music-toggle" id="musicToggle">
-            <i class="bi bi-music-note-beamed nav-icon"></i>
-          </button>
         </div>
+      </div>
+
+      <!-- Music Toggle Button - Bottom Right Position -->
+      <div class="music-toggle-container">
+        <button class="music-toggle" id="musicToggle" aria-label="Toggle Music">
+          <i class="bi bi-music-note-beamed nav-icon"></i>
+        </button>
       </div>
     `;
 
@@ -268,10 +406,10 @@ export class WeddingNavigation {
   }
 
   initAudio() {
-    // Create audio element but don't load immediately
+    // Create audio element
     this.audio = new Audio();
     this.audio.loop = true;
-    this.audio.volume = 0.5;
+    this.audio.volume = 0.6;
     
     // Setup music toggle
     const musicToggle = document.getElementById('musicToggle');
@@ -280,32 +418,83 @@ export class WeddingNavigation {
         this.toggleMusic();
       });
     }
-
-    // Show instruction for first-time users
-    this.showMusicInstruction();
   }
 
-  showMusicInstruction() {
-    const hasSeenInstruction = localStorage.getItem('musicInstructionSeen');
-    if (!hasSeenInstruction) {
-      setTimeout(() => {
-        const musicToggle = document.getElementById('musicToggle');
-        if (musicToggle) {
-          musicToggle.style.animation = 'pulse 2s infinite';
-          
-          const style = document.createElement('style');
-          style.textContent = `
-            @keyframes pulse {
-              0% { transform: scale(1); }
-              50% { transform: scale(1.1); }
-              100% { transform: scale(1); }
-            }
-          `;
-          document.head.appendChild(style);
-        }
+  setupAutoPlay() {
+    // Setup gesture-based auto-play
+    this.setupGestureAutoPlay();
+  }
+
+  setupGestureAutoPlay() {
+    // Enable audio on first user interaction
+    const enableAudioOnInteraction = () => {
+      if (!this.isAudioEnabled) {
+        this.enableAudio();
         
-        localStorage.setItem('musicInstructionSeen', 'true');
-      }, 2000);
+        // Remove event listeners after first interaction
+        document.removeEventListener('click', enableAudioOnInteraction);
+        document.removeEventListener('touchstart', enableAudioOnInteraction);
+        document.removeEventListener('keydown', enableAudioOnInteraction);
+        document.removeEventListener('scroll', enableAudioOnInteraction);
+      }
+    };
+
+    // Add multiple event listeners for different types of user interactions
+    document.addEventListener('click', enableAudioOnInteraction, { once: true });
+    document.addEventListener('touchstart', enableAudioOnInteraction, { once: true });
+    document.addEventListener('keydown', enableAudioOnInteraction, { once: true });
+    document.addEventListener('scroll', enableAudioOnInteraction, { once: true });
+
+    // Also try to enable audio immediately if page is already interactive
+    if (document.readyState === 'complete') {
+      setTimeout(() => {
+        if (!this.isAudioEnabled) {
+          this.enableAudio();
+        }
+      }, 100);
+    } else {
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          if (!this.isAudioEnabled) {
+            this.enableAudio();
+          }
+        }, 100);
+      });
+    }
+  }
+
+  async enableAudio() {
+    if (this.isAudioEnabled) return;
+
+    try {
+      // Set audio source
+      this.audio.src = 'sound/music.mp3';
+      
+      // Play audio
+      await this.audio.play();
+      this.isAudioEnabled = true;
+      this.isPlaying = true;
+      
+      // Update UI
+      const musicToggle = document.getElementById('musicToggle');
+      if (musicToggle) {
+        musicToggle.classList.add('active');
+        musicToggle.innerHTML = '<i class="bi bi-pause-fill nav-icon"></i>';
+      }
+      
+      console.log('Music auto-play enabled');
+      
+    } catch (error) {
+      console.log('Audio auto-play failed:', error);
+      
+      // Fallback: Show play button for manual activation
+      const musicToggle = document.getElementById('musicToggle');
+      if (musicToggle) {
+        musicToggle.innerHTML = '<i class="bi bi-play-fill nav-icon"></i>';
+        musicToggle.style.animation = 'pulseGlow 2s infinite';
+      }
+      
+      this.showAudioError('Klik untuk memutar musik');
     }
   }
 
@@ -321,7 +510,7 @@ export class WeddingNavigation {
       this.pauseMusic();
       if (musicToggle) {
         musicToggle.classList.remove('active');
-        musicToggle.innerHTML = '<i class="bi bi-music-note-beamed nav-icon"></i>';
+        musicToggle.innerHTML = '<i class="bi bi-play-fill nav-icon"></i>';
       }
     } else {
       this.playMusic();
@@ -329,28 +518,6 @@ export class WeddingNavigation {
         musicToggle.classList.add('active');
         musicToggle.innerHTML = '<i class="bi bi-pause-fill nav-icon"></i>';
       }
-    }
-  }
-
-  async enableAudio() {
-    try {
-      // Set audio source only when user interacts
-      this.audio.src = 'sound/music.mp3';
-      
-      await this.audio.play();
-      this.isAudioEnabled = true;
-      this.isPlaying = true;
-      
-      const musicToggle = document.getElementById('musicToggle');
-      if (musicToggle) {
-        musicToggle.classList.add('active');
-        musicToggle.innerHTML = '<i class="bi bi-pause-fill nav-icon"></i>';
-        musicToggle.style.animation = 'none';
-      }
-      
-    } catch (error) {
-      console.log('Audio enable failed:', error);
-      this.showAudioError();
     }
   }
 
@@ -373,7 +540,7 @@ export class WeddingNavigation {
     }
   }
 
-  showAudioError() {
+  showAudioError(message) {
     const musicToggle = document.getElementById('musicToggle');
     if (musicToggle) {
       const originalHTML = musicToggle.innerHTML;
@@ -383,7 +550,7 @@ export class WeddingNavigation {
       setTimeout(() => {
         musicToggle.innerHTML = originalHTML;
         musicToggle.style.color = '';
-      }, 2000);
+      }, 3000);
     }
   }
 
@@ -460,6 +627,16 @@ export class WeddingNavigation {
     if (this.audio) {
       this.pauseMusic();
       this.audio = null;
+    }
+    
+    const nav = document.getElementById('bottomNav');
+    if (nav) {
+      nav.remove();
+    }
+    
+    const musicToggle = document.getElementById('musicToggle');
+    if (musicToggle && musicToggle.parentNode) {
+      musicToggle.parentNode.remove();
     }
   }
 }
