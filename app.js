@@ -4,10 +4,14 @@ import { WeddingStory } from './story.js';
 import { WeddingDetails } from './details.js';
 import { WeddingGallery } from './gallery.js';
 import { WeddingFooter } from './footer.js';
+import { WeddingModal } from './modal.js';
+import { WeddingDataDisplay } from './tampil.js';
 
 class WeddingApp {
   constructor() {
     this.scrollReveal = null;
+    this.modal = null;
+    this.dataDisplay = null;
     this.init();
   }
 
@@ -50,6 +54,9 @@ class WeddingApp {
       // Initialize navigation
       this.navigation = new WeddingNavigation();
       
+      // Initialize modal
+      this.modal = new WeddingModal();
+      
       // Initialize couple section
       this.couple = new WeddingCouple(this.scrollReveal);
       
@@ -61,6 +68,9 @@ class WeddingApp {
       
       // Initialize gallery section
       this.gallery = new WeddingGallery(this.scrollReveal);
+      
+      // Initialize data display section
+      this.dataDisplay = new WeddingDataDisplay();
       
       // Initialize footer
       this.footer = new WeddingFooter();
